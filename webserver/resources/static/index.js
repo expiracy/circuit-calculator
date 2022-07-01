@@ -1,12 +1,11 @@
-
-function validateResistor() {
+function addResistor() {
     let form = new FormData();
     let xhr = new XMLHttpRequest();
 
     try {
         // posting the values to flask
-        form.append('test', JSON.stringify('test'))
-        xhr.open('post', '/draw', true);
+        form.append('resistor', JSON.stringify('resistor'))
+        xhr.open('post', '/api/add_resistor', true);
         xhr.send(form);
 
 
