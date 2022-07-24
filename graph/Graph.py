@@ -38,25 +38,22 @@ class Graph:
     def GetNodeAttributes(self, name):
         return nx.get_node_attributes(self._graph, name)
 
-if __name__ == "__main__":
-    graph = Graph()
-    graph.AddNodes([1, 2, 3, 4, 5, 6, 7])
-    graph.AddEdgesFrom([(1, 2), (1, 4), (1, 6), (2, 3), (4, 5), (4, 6), (6, 7), (5, 7), (3, 5), (3, 7)])
+    def GetAdjacencyList(self):
+        return self._graph.adj
 
-    # adding attributes
-    components = {
-        1: COMPONENT.CELL,
-        2: COMPONENT.RESISTOR,
-        3: COMPONENT.RESISTOR,
-        4: COMPONENT.LAMP,
-        5: COMPONENT.RESISTOR,
-        6: COMPONENT.RESISTOR,
-        7: COMPONENT.RESISTOR,
-    }
+    def GetAdjacencyMatrix(self):
+        return nx.to_scipy_sparse_matrix(self._graph).todense()
 
-    graph.SetNodeAttributes(components, COMPONENT)
-    epic = graph.GetNodeAttributes(COMPONENT)
+    def DFS(self, start, end):
+        fringe = [(start, [])]
 
-    graph.Show()
+        while fringe:
+            state, path = fringe.pop()
+            if path and state == end:
+                yield path
+                continue
 
-    print("test")
+            for next_state in self.GetAdjacencyList()[state]:
+                if next_state in path:
+                    continue
+                fringe.append((next_state, path + [next_state]))

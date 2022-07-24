@@ -47,6 +47,3 @@ if __name__ == "__main__":
     circuit_manager = CircuitManager(circuit)
     circuit_manager.CreateCircuitFromNetListFile("../testing/Circuit1.txt")
     circuit_manager.circuit.Show()
-
-
-

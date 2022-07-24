@@ -10,14 +10,16 @@ from flask import Flask, request, render_template, jsonify
 UPLOADS_PATH = join(dirname(realpath(__file__)))
 app = Flask(__name__, template_folder='resources', static_folder='resources/static/')
 
-#CircuitManager = CircuitManager()
+
+# CircuitManager = CircuitManager()
 
 # Returns the UI of the page.
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
-#app.add_url_rule('/api/<component>', 'show_user', show_user)
+
+# app.add_url_rule('/api/<component>', 'show_user', show_user)
 
 @app.route('/draw', methods=['GET', 'POST'])
 def draw():
@@ -29,7 +31,7 @@ def draw():
 
 @app.route('/api/add_resistor', methods=['POST'])
 def add_resistor():
-    #CircuitManager.AddComponent(COMPONENT.RESISTOR)
+    # CircuitManager.AddComponent(COMPONENT.RESISTOR)
     print("resistor")
     return "test"
 
@@ -80,6 +82,7 @@ def detect():
         return jsonify(colours=colours, type=resistor_type, image=None, valid=False, error=str(error))
         
     '''
+
 
 @app.route('/api/validate', methods=['POST'])
 def validate():

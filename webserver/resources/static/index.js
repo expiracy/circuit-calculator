@@ -18,9 +18,7 @@ function addResistor() {
                 print(response)
             }
         }
-    }
-
-    catch {
+    } catch {
         let error = 'Error.'
         console.log(error)
     }
