@@ -7,3 +7,6 @@ class Resistor(Resistance):
         super().__init__(resistance, potential_difference, current)
 
         self._component = COMPONENT.RESISTOR
+
+    def __str__(self):
+        return f"{self._component} {self._resistance}"

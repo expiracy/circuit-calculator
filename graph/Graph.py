@@ -5,12 +5,20 @@ from components.COMPONENT import COMPONENT
 
 
 class Graph:
-    def __init__(self):
-        self._graph = nx.Graph()
+    def __init__(self, graph=None):
+        if graph is None:
+            self._graph = nx.Graph()
+        else:
+            self._graph = graph
 
-    def Show(self, node_size=1000, labels=None):
+    def Show(self):
+        pos = nx.spring_layout(self._graph)
+        nx.draw(self._graph, pos, with_labels=True)
 
-        nx.draw(self._graph, node_size=node_size, labels=labels)
+        edge_labels = dict([((u, v,), str(d['value']))
+                            for u, v, d in self._graph.edges(data=True)])
+
+        nx.draw_networkx_edge_labels(self._graph, pos, edge_labels=edge_labels)
 
         plt.show()
 
@@ -20,7 +28,7 @@ class Graph:
     def AddNodes(self, node_list):
         self._graph.add_nodes_from(node_list)
 
-    def AddEdge(self, start, end, attribute):
+    def AddEdge(self, start, end, attribute=None):
         self._graph.add_edge(start, end, value=attribute)
 
     def AddEdgesFrom(self, edge_list):
@@ -57,3 +65,9 @@ class Graph:
                 if next_state in path:
                     continue
                 fringe.append((next_state, path + [next_state]))
+
+    def ConvertToDiGraph(self):
+        return self._graph.to_directed()
+
+    def GetEdges(self):
+        return self._graph.edges

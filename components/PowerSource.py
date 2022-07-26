@@ -3,3 +3,6 @@ class PowerSource:
         self._potential_difference = potential_difference
         self._internal_resistance = internal_resistance
         self._current = current
+
+    def __str__(self):
+        return __name__

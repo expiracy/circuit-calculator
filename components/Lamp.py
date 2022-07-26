@@ -1,5 +1,5 @@
 from components.Resistance import Resistance
-from components.COMPONENT import Component
+from components.COMPONENT import COMPONENT
 
 
 class Lamp(Resistance):

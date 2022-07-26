@@ -1,4 +1,8 @@
 from graph.Graph import Graph
+from graph.DiGraph import DiGraph
+from graph.MultiGraph import MultiGraph
+from graph.MultiDiGraph import MultiDiGraph
+# from solver.LoopFinder import LoopFinder
 from circuit.NetList import NetList
 from components.COMPONENT import COMPONENT
 from components.Resistor import Resistor
@@ -9,6 +13,9 @@ class CircuitManager:
     def __init__(self, circuit=None):
         self.circuit = circuit
         self._component_id = 0
+
+    def Main(self):
+        pass
 
     def CreateCircuitFromNetListFile(self, net_list_file):
         net_list = NetList(net_list_file)
@@ -35,6 +42,25 @@ class CircuitManager:
 
             self.circuit.AddEdge(left_nodes[index], right_nodes[index], component_class)
 
+    def AssignCurrentDirections(self):
+        loop_finder = LoopFinder(self.circuit)
+
+        self.circuit.Show()
+
+        circuit = MultiDiGraph()
+        print(loop_finder.loops)
+
+        for loop in loop_finder.loops:
+            for index in range(len(loop) - 1):
+                component = (loop[index], loop[index + 1])
+
+                components = circuit.GetEdges()
+
+                if not (component in components or component[::-1] in components):
+                    circuit.AddEdge(*component)
+
+        print("Test")
+
     def GetComponents(self):
         return self.circuit.GetEdgeAttributes('value')
 
@@ -43,7 +69,6 @@ class CircuitManager:
 
 
 if __name__ == "__main__":
-    circuit = Graph()
-    circuit_manager = CircuitManager(circuit)
-    circuit_manager.CreateCircuitFromNetListFile("../testing/Circuit1.txt")
-    circuit_manager.circuit.Show()
+    circuit_manager = CircuitManager(MultiGraph())
+    circuit_manager.CreateCircuitFromNetListFile("../testing/Circuit2.txt")
+    circuit_manager.AssignCurrentDirections()

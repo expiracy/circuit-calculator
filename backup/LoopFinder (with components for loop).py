@@ -32,6 +32,7 @@ class LoopFinder:
     # check if goes through 2 different components
 
     def RemoveInvalidLoops(self):
+        components_for_edge_and_id = self.circuit.GetEdgeAttributes('value')
         component_ids_for_edges = {}
 
         for u, v, d in self.circuit.GetEdges():
@@ -42,8 +43,12 @@ class LoopFinder:
 
             component_ids_for_edges[(u, v)].append(d)
 
-        for loop in self.loops[:]:
+        invalid_loops = []
+
+        for loop in self.loops:
             if len(loop) == 3:
+                components_for_loop = []
+                print(loop)
                 for node in range(len(loop) - 1):
                     edge = (loop[node], loop[node + 1])
 
@@ -53,16 +58,28 @@ class LoopFinder:
                         edge = tuple(reversed(edge))
                         component_ids_for_edge = component_ids_for_edges[edge]
 
-                    if len(component_ids_for_edge) < 2:
-                        self.loops.remove(loop)
+                    components = []
 
-                        break
+                    for component_id in component_ids_for_edge:
+                        edge_and_id = edge + (component_id,)
 
-        return self
+                        try:
+                            component = components_for_edge_and_id[edge_and_id]
+                        except KeyError:
+                            edge_and_id = edge + (component_id,)
+                            component = components_for_edge_and_id[edge_and_id]
+
+                        components.append(str(component))
+
+                    components_for_loop.append(components)
+
+                    if len(components) < 2:
+                        invalid_loops.append(loop)
+
+                print(components_for_loop)
 
 
 if __name__ == "__main__":
     circuit_manager = CircuitManager(MultiGraph())
     circuit_manager.CreateCircuitFromNetListFile("./testing/Circuit1.txt")
     loop_finder = LoopFinder(circuit_manager.circuit)
-

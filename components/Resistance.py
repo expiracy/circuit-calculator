@@ -3,3 +3,6 @@ class Resistance:
         self._resistance = resistance
         self._potential_difference = potential_difference
         self._current = current
+
+    def __str__(self):
+        return __name__

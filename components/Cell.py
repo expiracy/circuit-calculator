@@ -7,3 +7,6 @@ class Cell(PowerSource):
         super().__init__(potential_difference, internal_resistance, current)
 
         self._component = COMPONENT.CELL
+
+    def __str__(self):
+        return f"{self._component} {self._potential_difference}"
