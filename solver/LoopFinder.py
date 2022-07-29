@@ -1,5 +1,4 @@
 from graph.Graph import Graph
-from circuit.CircuitManager import CircuitManager
 from graph.MultiGraph import MultiGraph
 
 
@@ -7,12 +6,13 @@ class LoopFinder:
     def __init__(self, circuit):
         self.circuit = circuit
         self.loops = []
-        self.FindLoops()
 
     def FindLoops(self):
         self.FindAllLoops()
         self.RemoveDuplicateLoops()
         self.RemoveInvalidLoops()
+
+        return self.loops
 
     def FindAllLoops(self):
         self.loops = [[0] + path for path in self.circuit.DFS(0, 0)]
@@ -29,18 +29,8 @@ class LoopFinder:
 
         return self
 
-    # check if goes through 2 different components
-
     def RemoveInvalidLoops(self):
-        component_ids_for_edges = {}
-
-        for u, v, d in self.circuit.GetEdges():
-            try:
-                component_ids_for_edges[(u, v)]
-            except KeyError:
-                component_ids_for_edges[(u, v)] = []
-
-            component_ids_for_edges[(u, v)].append(d)
+        component_ids_for_edges = self.circuit.GetEdgeIDsForEdges()
 
         for loop in self.loops[:]:
             if len(loop) == 3:
@@ -61,8 +51,4 @@ class LoopFinder:
         return self
 
 
-if __name__ == "__main__":
-    circuit_manager = CircuitManager(MultiGraph())
-    circuit_manager.CreateCircuitFromNetListFile("./testing/Circuit1.txt")
-    loop_finder = LoopFinder(circuit_manager.circuit)
 

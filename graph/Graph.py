@@ -40,7 +40,7 @@ class Graph:
     def SetEdgeAttributes(self, attributes_for_edges):
         nx.set_edge_attributes(self._graph, attributes_for_edges)
 
-    def SetNodeAttributes(self, attributes_for_nodes, name):
+    def SetNodesAttributes(self, attributes_for_nodes, name):
         nx.set_node_attributes(self._graph, attributes_for_nodes, name)
 
     def GetNodeAttributes(self, name):
@@ -71,3 +71,12 @@ class Graph:
 
     def GetEdges(self):
         return self._graph.edges
+
+    def GetNodes(self):
+        return self._graph.nodes
+
+    def ConvertToDirected(self):
+        return self._graph.to_directed()
+
+    def GetEdgesForNode(self, node):
+        return self._graph.edges(node)

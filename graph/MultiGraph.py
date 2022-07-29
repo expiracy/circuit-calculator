@@ -16,15 +16,25 @@ class MultiGraph(Graph):
         pos = nx.spring_layout(self._graph)
         nx.draw(self._graph, pos, with_labels=True)
 
-        edge_count = {}
+        edge_and_count = {}
+        edge_ids_for_edges = self.GetEdgeIDsForEdges()
 
-        for u, v, d in self._graph.edges:
-            try:
-                edge_count[(u, v)] += 1
+        for edge, edge_ids in edge_ids_for_edges.items():
+            edge_and_count[edge] = len(edge_ids)
 
-            except:
-                edge_count[(u, v)] = 1
-
-        nx.draw_networkx_edge_labels(self._graph, pos, edge_labels=edge_count)
+        nx.draw_networkx_edge_labels(self._graph, pos, edge_labels=edge_and_count)
 
         plt.show()
+
+    def GetEdgeIDsForEdges(self):
+        edge_ids_for_edges = {}
+
+        for u, v, d in self.GetEdges():
+            try:
+                edge_ids_for_edges[(u, v)]
+            except KeyError:
+                edge_ids_for_edges[(u, v)] = []
+
+            edge_ids_for_edges[(u, v)].append(d)
+
+        return edge_ids_for_edges

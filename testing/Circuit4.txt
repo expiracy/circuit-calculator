@@ -1,0 +1,5 @@
+* Netlist created with www.circuit-diagram.org
+*
+R1 1 0 10
+R2 1 0 30
+V3 1 0 40

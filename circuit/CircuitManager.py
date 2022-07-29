@@ -2,11 +2,12 @@ from graph.Graph import Graph
 from graph.DiGraph import DiGraph
 from graph.MultiGraph import MultiGraph
 from graph.MultiDiGraph import MultiDiGraph
-# from solver.LoopFinder import LoopFinder
+from solver.LoopFinder import LoopFinder
 from circuit.NetList import NetList
 from components.COMPONENT import COMPONENT
 from components.Resistor import Resistor
 from components.Cell import Cell
+from solver.CurrentManager import CurrentManager
 
 
 class CircuitManager:
@@ -42,30 +43,83 @@ class CircuitManager:
 
             self.circuit.AddEdge(left_nodes[index], right_nodes[index], component_class)
 
+    def GetComponentForEdgeAndID(self, edge, component_id):
+        components_for_edge_and_id = self.circuit.GetEdgeAttributes('value')
+
+        edge_and_id = edge + (component_id,)
+
+        try:
+            component = components_for_edge_and_id[edge_and_id]
+        except KeyError:
+            edge_and_id = tuple(reversed(edge)) + (component_id,)
+            component = components_for_edge_and_id[edge_and_id]
+
+        return component
+
+    def GetComponentIDsForEdge(self, edge):
+        component_ids_for_edges = self.circuit.GetEdgeIDsForEdges()
+
+        try:
+            component_ids_for_edge = component_ids_for_edges[edge]
+        except KeyError:
+            edge = tuple(reversed(edge))
+            component_ids_for_edge = component_ids_for_edges[edge]
+
+        return component_ids_for_edge
+
+    def GetComponentsOnLoop(self, loop):
+        components_for_loop = []
+
+        for node in range(len(loop) - 1):
+            edge = (loop[node], loop[node + 1])
+
+            component_ids_for_edge = self.GetComponentIDsForEdge(edge)
+
+            components = []
+
+            for component_id in component_ids_for_edge:
+                component = self.GetComponentForEdgeAndID(edge, component_id)
+
+                components.append(str(component))
+
+            components_for_loop.append(components)
+
+        return components_for_loop
+
     def AssignCurrentDirections(self):
-        loop_finder = LoopFinder(self.circuit)
+        loops = LoopFinder(self.circuit).FindLoops()
 
-        self.circuit.Show()
+        current_manager = CurrentManager(self.circuit, loops).Main()
 
-        circuit = MultiDiGraph()
-        print(loop_finder.loops)
-
-        for loop in loop_finder.loops:
+        '''
+        for loop in loops:
             for index in range(len(loop) - 1):
-                component = (loop[index], loop[index + 1])
+                edge = (loop[index], loop[index + 1])
 
-                components = circuit.GetEdges()
+                component_ids_for_edge = self.GetComponentIDsForEdge(edge)
 
-                if not (component in components or component[::-1] in components):
-                    circuit.AddEdge(*component)
+                for component_id in component_ids_for_edge:
+                    component = self.GetComponentForEdgeAndID(edge, component_id)
 
-        print("Test")
+                    current_direction = component.current.GetDirection()
 
-    def GetComponents(self):
-        return self.circuit.GetEdgeAttributes('value')
+                    if current_direction is None:
+        
+                        component.current.SetDirection(*edge)
+                        circuit.AddEdge(*edge)
 
-    def AddComponent(self, component):
-        pass
+
+        for edge in circuit.GetEdges():
+            component = self.GetComponentForEdgeAndID(edge[:-1], edge[2])
+            print(f"{component}, {component.current.GetDirection()}")
+
+
+        circuit.Show()
+
+
+
+            #nodes
+        '''
 
 
 if __name__ == "__main__":
