@@ -9,4 +9,4 @@ class Cell(PowerSource):
         self.component = COMPONENT.CELL
 
     def __str__(self):
-        return f"{self.component} {self.potential_difference}"
+        return f"({self.component} {self.potential_difference} Edge: {self.edge} Flow: {self.current.flow})"

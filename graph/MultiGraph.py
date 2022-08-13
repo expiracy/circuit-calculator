@@ -30,11 +30,34 @@ class MultiGraph(Graph):
         edge_ids_for_edges = {}
 
         for u, v, d in self.GetEdges():
-            try:
-                edge_ids_for_edges[(u, v)]
-            except KeyError:
+            if not (u, v) in edge_ids_for_edges.keys():
                 edge_ids_for_edges[(u, v)] = []
 
             edge_ids_for_edges[(u, v)].append(d)
 
         return edge_ids_for_edges
+
+    def GetEdgesWithIDForNode(self, node):
+        edges_for_node_with_id = []
+
+        edges_and_counts = self.GetEdgesAndCountsForNode(node)
+
+        for edge, count in edges_and_counts.items():
+
+            for edge_id in range(count):
+                full_edge = edge + (edge_id,)
+                edges_for_node_with_id.append(full_edge)
+
+        return edges_for_node_with_id
+
+    def GetEdgesAndCountsForNode(self, node):
+        edges_and_counts = {}
+
+        for edge in self.GetEdgesForNode(node):
+            if edge in edges_and_counts.keys():
+                edges_and_counts[edge] += 1
+
+            else:
+                edges_and_counts[edge] = 1
+
+        return edges_and_counts

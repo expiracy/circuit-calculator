@@ -9,4 +9,4 @@ class Resistor(Resistance):
         self.component = COMPONENT.RESISTOR
 
     def __str__(self):
-        return f"{self.component} {self.resistance}"
+        return f"({self.component} {self.resistance} Edge: {self.edge} Flow: {self.current.flow})"

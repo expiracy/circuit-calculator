@@ -1,11 +1,14 @@
 # https://www.circuit-diagram.org/news/2019/04/circuit-netlists
+from components.COMPONENT import COMPONENT
+
 
 class NetList:
-    def __init__(self, net_list_file):
+    def __init__(self):
         self.net_list = []
-        self.GetNetListFromFile(net_list_file)
 
-    def GetNetListFromFile(self, file):
+    def LoadFile(self, file):
+        self.net_list = []
+
         with open(file, "r") as net_list_file:
             for line in net_list_file:
                 if line[0] != "*":
@@ -14,7 +17,7 @@ class NetList:
 
                     self.net_list.append(split_line)
 
-        return self.net_list
+        return self
 
     def GetComponents(self):
         return [item[0] for item in self.net_list]
@@ -27,6 +30,26 @@ class NetList:
 
     def GetValues(self):
         return [int(item[3]) for item in self.net_list]
+
+    def GetComponentsDetails(self):
+        components_details = []
+
+        components = self.GetComponents()
+        left_nodes = self.GetLeftNodes()
+        right_nodes = self.GetRightNodes()
+        values = self.GetValues()
+
+        for index in range(len(components)):
+            component_details = {
+                'left_node': left_nodes[index],
+                'right_node': right_nodes[index],
+                'component_type': COMPONENT(components[index][0]),
+                'value': values[index]
+            }
+
+            components_details.append(component_details)
+
+        return components_details
 
 
 if __name__ == "__main__":

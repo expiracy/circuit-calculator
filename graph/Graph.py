@@ -28,8 +28,8 @@ class Graph:
     def AddNodes(self, node_list):
         self._graph.add_nodes_from(node_list)
 
-    def AddEdge(self, start, end, attribute=None):
-        self._graph.add_edge(start, end, value=attribute)
+    def AddEdge(self, start, end, **attributes):
+        self._graph.add_edge(start, end, **attributes)
 
     def AddEdgesFrom(self, edge_list):
         self._graph.add_edges_from(edge_list)
