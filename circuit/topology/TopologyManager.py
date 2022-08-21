@@ -78,7 +78,7 @@ class TopologyManager:
 
             for component in connected_components:
 
-                for node in component.edge[:-1]:
+                for node in component.edge[:2]:
 
                     if node not in series_group_nodes and node not in nodes_to_check:
                         nodes_to_check.append(node)
