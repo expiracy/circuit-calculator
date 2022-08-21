@@ -14,16 +14,16 @@ class CircuitManager:
         self.component_manager = ComponentManager(self.circuit)
         self.junction_manager = JunctionsManager(self.circuit)
         self.current_manager = CurrentManager(self.circuit, self.junction_manager, self.component_manager)
-        self.topology_manager = TopologyManager(self.circuit, self.junction_manager)
+        self.topology_manager = TopologyManager(self.circuit, self.junction_manager, self.component_manager)
 
     def Main(self, file):
         self.CreateCircuitFromNetListFile(file)
         self.junction_manager.InitialiseJunctions()
 
+        self.topology_manager.SimplifyTopology()
+
         # self.loops = LoopFinder(self.circuit).FindLoops()
         # self.current_manager.AssignCurrentDirections(self.loops)
-
-        self.topology_manager.GroupSeriesComponents()
 
         return self
 
@@ -49,5 +49,5 @@ class CircuitManager:
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit6.txt"
+    file = "../testing/Circuit7.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

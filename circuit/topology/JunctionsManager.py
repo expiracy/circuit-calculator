@@ -35,11 +35,5 @@ class JunctionsManager:
     def GetJunctionForNode(self, junction):
         return self.circuit.GetNodeAttributes('connected_components')[junction]
 
-    def CheckIfJunctionIsSeries(self, junction):
-        connected_components = self.GetJunctionForNode(junction).connected_components
-
-        if len(connected_components) == 2:
-            return True
-
-        else:
-            return False
+    def GetNeighboursOfJunction(self, junction):
+        return self.circuit.GetNeighbourNodes(junction)

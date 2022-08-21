@@ -80,3 +80,6 @@ class Graph:
 
     def GetEdgesForNode(self, node):
         return self._graph.edges(node)
+
+    def GetNeighbourNodes(self, node):
+        return self._graph.neighbors(node)

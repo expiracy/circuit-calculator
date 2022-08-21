@@ -48,3 +48,13 @@ class ComponentManager:
 
         for edge, component in edges_and_components.items():
             component.edge = edge
+
+    def GetComponents(self):
+        components = []
+
+        for edge in self.circuit.GetEdges():
+            component = self.GetComponentForEdgeAndID(edge)
+
+            components.append(component)
+
+        return components

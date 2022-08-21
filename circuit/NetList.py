@@ -13,7 +13,9 @@ class NetList:
             for line in net_list_file:
                 if line[0] != "*":
                     split_line = line.split(" ")
-                    split_line[3] = split_line[3][:-1]
+
+                    if split_line[3][-1] == "\n":
+                        split_line[3] = split_line[3][:-1]
 
                     self.net_list.append(split_line)
 

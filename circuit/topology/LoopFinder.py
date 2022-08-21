@@ -54,5 +54,25 @@ class LoopFinder:
 
         return self
 
+    def GetSimpleLoops(self, series_group_nodes):
+        sorted_simple_loops = []
+        simple_loops = []
 
+        loops = LoopFinder(self.circuit).FindLoops()
 
+        series_nodes = [node for nodes in series_group_nodes for node in nodes]
+
+        for loop in loops:
+            simple_loop = []
+
+            for node in loop:
+                if node not in series_nodes:
+                    simple_loop.append(node)
+
+            sorted_simple_loop = list(sorted(simple_loop))
+
+            if sorted_simple_loop not in sorted_simple_loops:
+                simple_loops.append(simple_loop)
+                sorted_simple_loops.append(sorted_simple_loop)
+
+        return simple_loops
