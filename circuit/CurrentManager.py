@@ -1,94 +1,35 @@
+from circuit.topology.PathFinder import PathFinder
+
+
 class CurrentManager:
-    def __init__(self, circuit=None, junction_manager=None, component_manager=None):
+    def __init__(self, circuit=None, topology_manager=None, junction_manager=None, component_manager=None):
         self.circuit = circuit
+
+        self.topology_manager = topology_manager
         self.junction_manager = junction_manager
         self.component_manager = component_manager
 
-    def AssignCurrentDirections(self, loops):
+    def AssignCurrentDirections(self, components):
+        groupings = ["S", "P"]
 
-        for loop_number in range(len(loops)):
-            loop = loops[loop_number]
+        for component in components:
+            if self.component_manager.IsGrouping(component):
+                self.AssignCurrentDirections(component.components)
 
-            specific_paths = self.FindSpecificPathsForLoop(loop)
+    def AssignCurrentDirections(self):
+        loop_finder = PathFinder(self.circuit)
 
-            print(loop)
+        components = self.topology_manager.components
 
-            for node_index in range(len(loop) - 1):
-                edge = (loop[node_index], loop[node_index + 1])
+        for component in components:
+            for branch in component.components:
+                if branch.component.value == "S":
+                    path = loop_finder.FindPathBetweenAndThrough(branch.edge[0], branch.edge[1], branch.nodes)
 
-                junction = self.junction_manager.GetJunctionForNode(loop[node_index])
-                connected_components = junction.connected_components
+                    print(path)
 
-                if loop_number == 0:
+    def AssignParallelBranchCurrent(self, parallel_branch):
+        pass
 
-                    for connected_component in connected_components:
-
-                        component_edge = connected_component.edge
-
-                        if edge == component_edge[:-1] or tuple(reversed(edge)) == component_edge[:-1]:
-                            if connected_component.current.flow is None:
-                                connected_component.current.flow = edge
-
-                                print(connected_component)
-
-                                break
-
-                else:
-
-                    components_with_set_flows = self.GetComponentsWithSetFlowsOnLoop(loop)
-                    print(f"set flows {components_with_set_flows}")
-
-        for junction, connected_components in self.junction_manager.junctions.items():
-            print(junction, connected_components)
-
-        print(loops)
-
-    def FindPossibleComponentsOnLoop(self, loop):
-        possible_components_on_loop = []
-
-        for node_index in range(len(loop) - 1):
-            possible_components_on_loop.append([])
-
-            edge = (loop[node_index], loop[node_index + 1])
-
-            components = self.component_manager.GetComponentsForEdge(edge)
-
-            for component in components:
-                possible_components_on_loop[node_index].append(component)
-
-        return possible_components_on_loop
-
-    def FindSpecificPathsForLoop(self, loop):
-        specific_paths = []
-        possible_components_on_loop = self.FindPossibleComponentsOnLoop(loop)
-
-        for components in possible_components_on_loop:
-            pass
-
-        return specific_paths
-
-    def GetComponentsWithSetFlowsOnLoop(self, loop):
-        set_flows = []
-
-        for node_index in range(len(loop) - 1):
-            edge = (loop[node_index], loop[node_index + 1])
-
-            components = self.component_manager.GetComponentsForEdge(edge)
-
-            for component in components:
-                flow = component.current.flow
-
-                if flow is not None:
-                    set_flows.append(component)
-
-        return set_flows
-
-    def GetFlowForEdge(self, edge):
-        component = self.component_manager.GetComponentForEdgeAndID(edge)
-        flow = component.current.flow
-
-        return flow
-
-    def SetFlowForEdge(self, edge, flow):
-        component = self.component_manager.GetComponentForEdgeAndID(edge)
-        component.current.flow = flow
+    def AssignSeriesGroupCurrent(self):
+        pass

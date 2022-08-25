@@ -1,6 +1,6 @@
 from components.ParallelBranch import ParallelBranch
 from components.SeriesGroup import SeriesGroup
-from circuit.topology.LoopFinder import LoopFinder
+from circuit.topology.PathFinder import PathFinder
 from graph.MultiGraph import MultiGraph
 
 
@@ -12,6 +12,31 @@ class TopologyManager:
         self.component_manager = component_manager
 
         self.components = []
+
+    def SimplifyTopology(self):
+        self.junction_manager.InitialiseJunctions()
+
+        old_circuit_nodes = list(self.circuit.GetNodes())
+
+        series_groups_nodes = self.IdentitySeriesGroupsNodes()
+
+        all_in_series = self.CheckIfAllInSeries(series_groups_nodes, old_circuit_nodes)
+
+        if not all_in_series:
+            self.CreateSeriesGroups(series_groups_nodes)
+
+            components_for_edges = self.GetComponentsForEdges()
+            self.GroupParallelBranches(components_for_edges)
+
+            self.UpdateCircuit()
+
+        new_circuit_nodes = list(self.circuit.GetNodes())
+
+        if new_circuit_nodes == old_circuit_nodes:
+            return self
+
+        else:
+            self.SimplifyTopology()
 
     def UpdateCircuit(self):
         self.circuit = MultiGraph()
@@ -25,32 +50,16 @@ class TopologyManager:
         self.component_manager.circuit = self.circuit
         self.junction_manager.circuit = self.circuit
 
-        self.junction_manager.InitialiseJunctions()
-
         return self
 
-    def SimplifyTopology(self):
+    def CheckIfAllInSeries(self, series_groups_nodes, circuit_nodes):
+        all_in_series = False
 
-        self.circuit.Show()
-        # bug on other iterations
+        for series_group_nodes in series_groups_nodes:
+            if sorted(series_group_nodes) == sorted(circuit_nodes):
+                all_in_series = True
 
-        old_circuit_nodes = list(self.circuit.GetNodes())
-
-        # recursive redo series group and parallel
-        series_groups_nodes = self.IdentitySeriesGroupsNodes()
-        self.CreateSeriesGroups(series_groups_nodes)
-
-        components_for_edges = self.GetComponentsForEdges()
-        self.GroupParallelBranches(components_for_edges)
-
-        self.UpdateCircuit()
-        new_circuit_nodes = list(self.circuit.GetNodes())
-
-        if new_circuit_nodes == old_circuit_nodes:
-            return self
-
-        else:
-            self.SimplifyTopology()
+        return all_in_series
 
     def IdentitySeriesGroupsNodes(self):
         sorted_series_groups_nodes = []
@@ -69,42 +78,34 @@ class TopologyManager:
         return series_groups_nodes
 
     def IdentifySeriesGroupNodes(self, nodes_to_check, series_group_nodes):
-        junction_number = nodes_to_check.pop()
-        junction = self.junction_manager.GetJunctionForNode(junction_number)
-        connected_components = junction.connected_components
+        if nodes_to_check:
+            junction_number = nodes_to_check.pop()
+            junction = self.junction_manager.GetJunctionForNode(junction_number)
+            connected_components = junction.connected_components
 
-        if len(connected_components) == 2:
-            series_group_nodes.append(junction_number)
+            if len(connected_components) == 2:
+                series_group_nodes.append(junction_number)
 
-            for component in connected_components:
+                for component in connected_components:
+                    for node in component.edge[:2]:
 
-                for node in component.edge[:2]:
-
-                    if node not in series_group_nodes and node not in nodes_to_check:
-                        nodes_to_check.append(node)
+                        if node not in series_group_nodes and node not in nodes_to_check:
+                            nodes_to_check.append(node)
 
             return self.IdentifySeriesGroupNodes(nodes_to_check, series_group_nodes)
 
         else:
-            if not nodes_to_check:
-                return series_group_nodes
-
-            else:
-                return self.IdentifySeriesGroupNodes(nodes_to_check, series_group_nodes)
+            return series_group_nodes
 
     def FindEdgeFromSeriesGroupNodes(self, series_group_nodes):
         edge = ()
 
-        first_neighbour_nodes = list(self.junction_manager.GetNeighboursOfJunction(series_group_nodes[0]))
-        last_neighbour_nodes = list(self.junction_manager.GetNeighboursOfJunction(series_group_nodes[-1]))
+        for node in series_group_nodes:
+            neighbour_nodes = self.circuit.GetNeighbourNodes(node)
 
-        for node in first_neighbour_nodes:
-            if node not in series_group_nodes:
-                edge += (node,)
-
-        for node in last_neighbour_nodes:
-            if node not in series_group_nodes and node not in edge:
-                edge += (node,)
+            for neighbour_node in neighbour_nodes:
+                if neighbour_node not in edge and neighbour_node not in series_group_nodes:
+                    edge += (neighbour_node,)
 
         return edge
 
@@ -132,9 +133,10 @@ class TopologyManager:
 
             added_components += components
 
-            series_group = SeriesGroup(series_group_nodes, edge, components)
+            if edge:
+                series_group = SeriesGroup(series_group_nodes, edge, components)
 
-            self.components.append(series_group)
+                self.components.append(series_group)
 
         components = self.component_manager.GetComponents()
 
@@ -186,15 +188,11 @@ class TopologyManager:
 
         return components_for_edges
 
-    '''
-    def IdentifyParallelJunctionsAndNeighbours(self):
-        parallel_junctions_and_connections= {}
+    def GetComponentForEdge(self, edge, components):
+        for component in components:
+            component_edge = component.edge
 
-        for node in self.junction_manager.junctions.keys():
-            connections = list(self.GetComponentsForNode(node))
+            if component_edge == edge or tuple(reversed(component_edge)) == edge:
+                return component
 
-            if len(connections) > 2:
-                parallel_junctions_and_connections[node] = connections
-
-        return parallel_junctions_and_connections
-    '''
+            return self.GetComponentForEdge(edge, component.components)

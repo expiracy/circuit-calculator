@@ -58,3 +58,15 @@ class ComponentManager:
             components.append(component)
 
         return components
+
+    def AssignCurrent(self, flow):
+        pass
+
+    def IsGrouping(self, component):
+        groupings = [COMPONENT.SERIES_GROUP, COMPONENT.PARALLEL_BRANCH]
+
+        if component.component in groupings:
+            return True
+
+        else:
+            return False
