@@ -1,7 +1,7 @@
 class Current:
-    def __init__(self, value=None, flow=None):
+    def __init__(self, id=-1, value=None):
+        self.id = id
         self.value = value
-        self.flow = flow
 
     def __str__(self):
-        return f"Flow: {self.flow}, Value: {self.value}"
+        return f"ID: {self.id}, Value: {self.value}"

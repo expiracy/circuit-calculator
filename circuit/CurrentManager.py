@@ -1,4 +1,5 @@
 from circuit.topology.PathFinder import PathFinder
+from circuit.Current import Current
 
 
 class CurrentManager:
@@ -9,27 +10,32 @@ class CurrentManager:
         self.junction_manager = junction_manager
         self.component_manager = component_manager
 
-    def AssignCurrentDirections(self, components):
-        groupings = ["S", "P"]
+        self.current_id = 0
+
+    def GenerateNewCurrent(self):
+        self.current_id += 1
+        current = Current(self.current_id)
+
+        return current
+
+    def AssignCurrentDirections(self, components, current=None, is_parallel_branch=False):
+        if current is None:
+            current = self.GenerateNewCurrent()
 
         for component in components:
-            if self.component_manager.IsGrouping(component):
-                self.AssignCurrentDirections(component.components)
+            if is_parallel_branch:
+                current = self.GenerateNewCurrent()
 
-    def AssignCurrentDirections(self):
-        loop_finder = PathFinder(self.circuit)
+            component.current = current
 
-        components = self.topology_manager.components
+            if self.component_manager.IsParallelBranch(component):
+                self.AssignCurrentDirections(component.components, None, True)
 
-        for component in components:
-            for branch in component.components:
-                if branch.component.value == "S":
-                    path = loop_finder.FindPathBetweenAndThrough(branch.edge[0], branch.edge[1], branch.nodes)
-
-                    print(path)
+            elif self.component_manager.IsSeriesGroup(component):
+                self.AssignCurrentDirections(component.components, current, False)
 
     def AssignParallelBranchCurrent(self, parallel_branch):
         pass
 
-    def AssignSeriesGroupCurrent(self):
+    def AssignSeriesGroupCurrent(self, series_group):
         pass

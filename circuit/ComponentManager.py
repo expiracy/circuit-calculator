@@ -6,6 +6,7 @@ from components.Cell import Cell
 class ComponentManager:
     def __init__(self, circuit=None):
         self.circuit = circuit
+        self.grouping_types = [COMPONENT.SERIES_GROUP, COMPONENT.PARALLEL_BRANCH]
 
     def GetComponentsForEdge(self, edge):
         components = []
@@ -63,9 +64,21 @@ class ComponentManager:
         pass
 
     def IsGrouping(self, component):
-        groupings = [COMPONENT.SERIES_GROUP, COMPONENT.PARALLEL_BRANCH]
+        if component.component in self.grouping_types:
+            return True
 
-        if component.component in groupings:
+        else:
+            return False
+
+    def IsParallelBranch(self, component):
+        if component.component is COMPONENT.PARALLEL_BRANCH:
+            return True
+
+        else:
+            return False
+
+    def IsSeriesGroup(self, component):
+        if component.component is COMPONENT.SERIES_GROUP:
             return True
 
         else:

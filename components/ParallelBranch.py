@@ -1,3 +1,4 @@
+from circuit.Current import Current
 from components.COMPONENT import COMPONENT
 
 
@@ -6,7 +7,7 @@ class ParallelBranch:
         self.component = COMPONENT.PARALLEL_BRANCH
         self.edge = edge
         self.components = components
-        self.flow = flow
+        self.current = Current()
 
     def __str__(self):
-        return f"(No. Comp: {len(self.components)} Edge: {self.edge})"
+        return f"(No. Comp: {len(self.components)} Edge: {self.edge} Current ID: {self.current.id})"

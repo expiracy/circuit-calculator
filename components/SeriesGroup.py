@@ -21,4 +21,4 @@ class SeriesGroup:
                     component.current.flow = edge
 
     def __str__(self):
-        return f"(No. Comp: {len(self.components)} Nodes: {self.nodes} Edge: {self.edge} Flow: {self.current.flow})"
+        return f"(No. Comp: {len(self.components)} Nodes: {self.nodes} Edge: {self.edge} Current ID: {self.current.id})"

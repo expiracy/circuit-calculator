@@ -25,6 +25,11 @@ class PathFinder:
 
         return self.paths
 
+    def GetComponentsBetweenNodes(self, node_1, node_2):
+        all_paths = [[node_1] + path for path in self.circuit.DFS(node_1, node_2)]
+
+        return all_paths
+
     def FindLoops(self):
         self.FindAllLoops()
         self.RemoveDuplicateLoops()

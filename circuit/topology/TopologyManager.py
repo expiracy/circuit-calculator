@@ -10,6 +10,7 @@ class TopologyManager:
 
         self.junction_manager = junction_manager
         self.component_manager = component_manager
+        self.path_finder = PathFinder(circuit)
 
         self.components = []
 
@@ -33,6 +34,7 @@ class TopologyManager:
         new_circuit_nodes = list(self.circuit.GetNodes())
 
         if new_circuit_nodes == old_circuit_nodes:
+            self.circuit.Show()
             return self
 
         else:
@@ -49,6 +51,7 @@ class TopologyManager:
 
         self.component_manager.circuit = self.circuit
         self.junction_manager.circuit = self.circuit
+        self.path_finder.circuit = self.circuit
 
         return self
 
@@ -138,11 +141,17 @@ class TopologyManager:
 
                 self.components.append(series_group)
 
-        components = self.component_manager.GetComponents()
+            else:
+                self.FindSeriesGroupIfNoEdge()
 
-        for component in components:
+        for component in self.component_manager.GetComponents():
             if component not in added_components:
                 self.components.append(component)
+
+    def FindSeriesGroupIfNoEdge(self):
+        for component in self.component_manager.GetComponents():
+            edge = component.edge
+            self.path_finder.GetComponentsBetweenNodes(edge[0], edge[1])
 
     def GroupParallelBranches(self, components_for_edges):
         new_components = []

@@ -29,7 +29,9 @@ class CircuitManager:
 
         self.topology_manager.SimplifyTopology()
 
-        self.current_manager.AssignCurrentDirections()
+        self.current_manager.AssignCurrentDirections(self.topology_manager.components)
+
+        print("stop")
 
         return self
 
