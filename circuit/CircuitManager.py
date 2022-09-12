@@ -1,9 +1,13 @@
+from itertools import permutations, chain
 from graph.MultiGraph import MultiGraph
 from circuit.NetList import NetList
 from circuit.CurrentManager import CurrentManager
-from circuit.topology.JunctionsManager import JunctionsManager
 from circuit.ComponentManager import ComponentManager
+from circuit.topology.JunctionsManager import JunctionsManager
 from circuit.topology.TopologyManager import TopologyManager
+from circuit.topology.PathFinder import PathFinder
+from circuit.topology.PathFinder import PathFinder
+from solver.EquationManager import EquationManager
 
 
 class CircuitManager:
@@ -31,7 +35,12 @@ class CircuitManager:
 
         self.current_manager.AssignCurrentDirections(self.topology_manager.components)
 
-        print("stop")
+        equation_manager = EquationManager(self.topology_manager.circuit,
+                                           ComponentManager(self.topology_manager.circuit),
+                                           self.topology_manager,
+                                           self.junction_manager)
+
+        equations = equation_manager.FindEquations()
 
         return self
 
@@ -54,8 +63,29 @@ class CircuitManager:
 
         return self
 
+    def GetComponentLoops(self, components_on_loop):
+        component_loops = []
+
+        for index in range(len(components_on_loop)):
+            components = components_on_loop[index]
+
+            for component in components:
+                pass
+
+    def GetComponentsOnLoop(self, loop):
+        components_on_loop = []
+
+        for node_index in range(len(loop) - 1):
+            edge = (loop[node_index], loop[node_index + 1])
+
+            components_for_edge = self.component_manager.GetComponentsForEdge(edge)
+
+            components_on_loop.append(components_for_edge)
+
+        return components_on_loop
+
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit7.txt"
+    file = "../testing/Circuit6.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

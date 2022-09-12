@@ -60,9 +60,6 @@ class ComponentManager:
 
         return components
 
-    def AssignCurrent(self, flow):
-        pass
-
     def IsGrouping(self, component):
         if component.component in self.grouping_types:
             return True
@@ -79,6 +76,20 @@ class ComponentManager:
 
     def IsSeriesGroup(self, component):
         if component.component is COMPONENT.SERIES_GROUP:
+            return True
+
+        else:
+            return False
+
+    def IsCell(self, component):
+        if component.component is COMPONENT.CELL:
+            return True
+
+        else:
+            return False
+
+    def IsResistor(self, component):
+        if component.component is COMPONENT.RESISTOR:
             return True
 
         else:

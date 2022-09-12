@@ -9,16 +9,12 @@ class SeriesGroup:
         self.edge = edge
         self.components = components
         self.current = Current()
+        self.paths = []
 
-    def SetFlow(self, flow):
-        for node_index in range(len(flow)):
-            edge = (flow[node_index], flow[node_index + 1])
-
-            for component in self.components:
-                component_edge = component.edge[:2]
-
-                if component_edge == edge or tuple(reversed(component_edge)) == edge:
-                    component.current.flow = edge
+    def FindComponentWithEdge(self, edge):
+        for component in self.components:
+            if component.edge == edge or tuple(reversed(component.edge)) == edge:
+                return component
 
     def __str__(self):
         return f"(No. Comp: {len(self.components)} Nodes: {self.nodes} Edge: {self.edge} Current ID: {self.current.id})"

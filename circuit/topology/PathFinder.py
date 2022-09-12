@@ -1,34 +1,18 @@
 from graph.Graph import Graph
 from graph.MultiGraph import MultiGraph
+from circuit.ComponentManager import ComponentManager
 
 
 class PathFinder:
     def __init__(self, circuit):
         self.circuit = circuit
+        self.component_manager = ComponentManager(circuit)
         self.paths = []
 
-    def FindPathBetweenAndThrough(self, node_1, node_2, through_nodes):
-        self.paths = []
+    def FindPathsBetween(self, node_1, node_2):
+        paths = [[] + path[:-1] for path in self.circuit.DFS(node_1, node_2)]
 
-        all_paths = [[node_1] + path for path in self.circuit.DFS(node_1, node_2)]
-
-        through_nodes = list(sorted(through_nodes))
-        sorted_paths = []
-
-        for path in all_paths:
-            sorted_paths.append(list(sorted(path)))
-
-        for path in sorted_paths:
-            if through_nodes in path:
-                index = sorted_paths.index(path)
-                self.paths.append(all_paths[index])
-
-        return self.paths
-
-    def GetComponentsBetweenNodes(self, node_1, node_2):
-        all_paths = [[node_1] + path for path in self.circuit.DFS(node_1, node_2)]
-
-        return all_paths
+        return paths
 
     def FindLoops(self):
         self.FindAllLoops()
@@ -59,44 +43,28 @@ class PathFinder:
         return self
 
     def RemoveInvalidLoops(self):
-        component_ids_for_edges = self.circuit.GetEdgeIDsForEdges()
-
         for loop in self.paths[:]:
             if len(loop) == 3:
-                for node in range(len(loop) - 1):
-                    edge = (loop[node], loop[node + 1])
-
-                    if edge not in component_ids_for_edges.keys():
-                        edge = tuple(reversed(edge))
-
-                    component_ids_for_edge = component_ids_for_edges[edge]
-
-                    if len(component_ids_for_edge) < 2:
-                        self.paths.remove(loop)
-
-                        break
+                if self.IsShortLoopValid(loop) is False:
+                    self.paths.remove(loop)
 
         return self
 
-    def GetSimpleLoops(self, series_group_nodes):
-        sorted_simple_loops = []
-        simple_loops = []
+    def IsShortLoopValid(self, loop):
+        edge = (loop[0], loop[1])
 
-        loops = PathFinder(self.circuit).FindLoops()
+        component_ids_for_edges = self.circuit.GetEdgeIDsForEdges()
 
-        series_nodes = [node for nodes in series_group_nodes for node in nodes]
+        if edge not in component_ids_for_edges.keys():
+            edge = tuple(reversed(edge))
 
-        for loop in loops:
-            simple_loop = []
+        component_ids_for_edge = component_ids_for_edges[edge]
 
-            for node in loop:
-                if node not in series_nodes:
-                    simple_loop.append(node)
+        if len(component_ids_for_edge) < 2:
+            component = self.component_manager.GetComponentsForEdge(edge)[0]
 
-            sorted_simple_loop = list(sorted(simple_loop))
+            if not self.component_manager.IsParallelBranch(component):
+                return False
 
-            if sorted_simple_loop not in sorted_simple_loops:
-                simple_loops.append(simple_loop)
-                sorted_simple_loops.append(sorted_simple_loop)
+        return True
 
-        return simple_loops

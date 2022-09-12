@@ -19,7 +19,7 @@ class CurrentManager:
         return current
 
     def AssignCurrentDirections(self, components, current=None, is_parallel_branch=False):
-        if current is None:
+        if current is None and is_parallel_branch is False:
             current = self.GenerateNewCurrent()
 
         for component in components:
@@ -34,8 +34,4 @@ class CurrentManager:
             elif self.component_manager.IsSeriesGroup(component):
                 self.AssignCurrentDirections(component.components, current, False)
 
-    def AssignParallelBranchCurrent(self, parallel_branch):
-        pass
-
-    def AssignSeriesGroupCurrent(self, series_group):
-        pass
+        return self

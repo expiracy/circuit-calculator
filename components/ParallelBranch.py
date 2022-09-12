@@ -8,6 +8,7 @@ class ParallelBranch:
         self.edge = edge
         self.components = components
         self.current = Current()
+        self.paths = []
 
     def __str__(self):
         return f"(No. Comp: {len(self.components)} Edge: {self.edge} Current ID: {self.current.id})"
