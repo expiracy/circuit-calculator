@@ -23,6 +23,9 @@ class ParallelBranch:
     def Reverse(self):
         self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
 
+        reversed_paths = [list(reversed(path)) for path in self.paths]
+        self.paths = reversed_paths
+
         return self
 
     def __str__(self):

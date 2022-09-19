@@ -27,9 +27,7 @@ class PathFinder:
 
     def FindAllLoops(self):
         nodes = list(self.circuit.GetNodes())
-        random_index = rd.randint(0, len(nodes) - 1)
-        start_and_end_node = nodes[random_index]
-
+        start_and_end_node = nodes[0]
         self.paths = [[start_and_end_node] + path for path in self.circuit.DFS(start_and_end_node, start_and_end_node)]
 
         self.RemoveDuplicateLoops()
@@ -74,11 +72,14 @@ class PathFinder:
         return True
 
     def FindPathsThroughComponent(self, current_component, next_start_node):
-        outer_series_group = self.component_manager.IsSeriesGroup(current_component)
-        outer_parallel_branch = self.component_manager.IsParallelBranch(current_component)
-
         if not current_component.edge[0] == next_start_node:
             current_component = current_component.Reverse()
+
+            if current_component.paths:
+                return current_component
+
+        outer_series_group = self.component_manager.IsSeriesGroup(current_component)
+        outer_parallel_branch = self.component_manager.IsParallelBranch(current_component)
 
         if not current_component.GetGroupings():
             if outer_parallel_branch:
@@ -89,7 +90,10 @@ class PathFinder:
 
             return current_component
 
-        current_component_with_inner_paths = self.FindAllInnerPathsOfGrouping(current_component, outer_series_group, outer_parallel_branch, next_start_node)
+        current_component_with_inner_paths = self.FindAllInnerPathsOfGrouping(current_component,
+                                                                              outer_series_group,
+                                                                              outer_parallel_branch,
+                                                                              next_start_node)
 
         current_component_with_paths = self.SetComponentPaths(current_component_with_inner_paths,
                                                               outer_series_group,
@@ -109,9 +113,9 @@ class PathFinder:
                 component = current_component.FindComponentWithEdge(edge)
 
                 if self.component_manager.IsGrouping(component):
-                    component_with_path = self.FindPathsThroughComponent(component, edge[0])
+                    component_with_paths = self.FindPathsThroughComponent(component, edge[0])
 
-                    components_with_paths.append(component_with_path)
+                    components_with_paths.append(component_with_paths)
 
                 else:
                     components_with_paths.append(component)
@@ -120,7 +124,7 @@ class PathFinder:
             for component in current_component.components:
                 if self.component_manager.IsGrouping(component):
                     if outer_parallel_branch:
-                        component_with_path = self.FindPathsThroughComponent(component, last_start_node)
+                        component_with_paths = self.FindPathsThroughComponent(component, last_start_node)
 
                     else:
                         edge = current_component.edge[:2]
@@ -133,7 +137,7 @@ class PathFinder:
 
                         component_with_path = self.FindPathsThroughComponent(component, next_start_node)
 
-                    components_with_paths.append(component_with_path)
+                    components_with_paths.append(component_with_paths)
 
                 else:
                     components_with_paths.append(component)
@@ -143,7 +147,7 @@ class PathFinder:
         return current_component
 
     def SetComponentPaths(self, current_component, outer_series_group, outer_parallel_branch):
-        paths = []
+        self.paths = []
         components = current_component.components
 
         for component in components:
@@ -152,55 +156,72 @@ class PathFinder:
 
             if outer_series_group:
                 if inner_series_group:
-
-                    for component_path in component.paths:
-                        if paths:
-                            for path in paths:
-                                path += component_path
-
-                        else:
-                            paths.append(component_path)
+                    self.ExtendSeriesPathsWithSeriesGroup(component)
 
                 elif inner_parallel_branch:
-                    old_paths = paths.copy()
-                    paths = []
-
-                    for component_path in component.paths:
-
-                        if old_paths:
-                            for old_path in old_paths:
-                                new_path = old_path + component_path
-                                paths.append(new_path)
-
-                        else:
-                            paths.append(component_path)
+                    self.ExtendSeriesPathsWithParallelBranch(component)
 
                 else:
-                    if paths:
-                        for path in paths:
-                            path += [component]
-
-                    else:
-                        paths.append([component])
+                    self.ExtendSeriesPathsWithComponent(component)
 
             elif outer_parallel_branch:
                 if inner_series_group or inner_parallel_branch:
-
-                    for component_path in component.paths:
-                        paths.append(component_path)
+                    self.ExtendParallelPathsWithGrouping(component)
 
                 else:
-                    paths.append([component])
+                    self.ExtendParallelPathsWithComponent(component)
 
-        current_component.paths = paths
+        current_component.paths = self.paths
 
         return current_component
 
-    def AreEdgesContinuous(self, previous_edge, current_edge):
-        if previous_edge[1] == current_edge[0]:
-            return True
+    def ExtendSeriesPathsWithSeriesGroup(self, component):
+        for component_path in component.paths:
+            if self.paths:
+                for path in self.paths:
+                    path += component_path
+
+            else:
+                self.paths.append(component_path)
+
+        return self
+
+    def ExtendSeriesPathsWithParallelBranch(self, component):
+        old_paths = self.paths.copy()
+        self.paths = []
+
+        for component_path in component.paths:
+
+            if old_paths:
+                for old_path in old_paths:
+                    new_path = old_path + component_path
+                    self.paths.append(new_path)
+
+            else:
+                self.paths.append(component_path)
+
+        return self
+
+    def ExtendSeriesPathsWithComponent(self, component):
+        if self.paths:
+            for path in self.paths:
+                path += [component]
 
         else:
-            return False
+            self.paths.append([component])
+
+        return self
+
+    def ExtendParallelPathsWithGrouping(self, component):
+        for component_path in component.paths:
+            self.paths.append(component_path)
+
+        return self
+
+    def ExtendParallelPathsWithComponent(self, component):
+        self.paths.append([component])
+
+        return self
+
 
 

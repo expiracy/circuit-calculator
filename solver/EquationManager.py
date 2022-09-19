@@ -28,7 +28,7 @@ class EquationManager:
                 component = self.component_manager.GetComponentsForEdge(edge)[0]
 
                 if self.component_manager.IsGrouping(component):
-                    component = self.path_finder.FindPathsThroughComponent(component, edge[0])
+                    component_with_paths = self.path_finder.FindPathsThroughComponent(component, edge[0])
 
                     self.OutputPathsForComponent(component)
 

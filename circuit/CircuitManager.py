@@ -87,5 +87,5 @@ class CircuitManager:
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit9.txt"
+    file = "../testing/Circuit7.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

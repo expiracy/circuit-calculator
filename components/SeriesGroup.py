@@ -32,6 +32,9 @@ class SeriesGroup:
         self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
         self.nodes = list(reversed(self.nodes))
         self.components = list(reversed(self.components))
+        
+        reversed_paths = [list(reversed(path)) for path in self.paths]
+        self.paths = reversed_paths
 
         return self
 
