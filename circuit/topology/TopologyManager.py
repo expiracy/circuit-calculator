@@ -14,6 +14,13 @@ class TopologyManager:
 
         self.components = []
 
+    def AddRemainingComponents(self, added_components):
+        for component in self.component_manager.GetComponents():
+            if component not in added_components:
+                self.components.append(component)
+
+        return self
+
     def SimplifyTopology(self):
         self.junction_manager.InitialiseJunctions()
 
@@ -24,8 +31,8 @@ class TopologyManager:
         all_in_series = self.CheckIfAllInSeries(series_groups_nodes, old_circuit_nodes)
 
         if not all_in_series:
-            self.CreateSeriesGroups(series_groups_nodes)
-            self.OrderSeriesGroups()
+            added_components = self.CreateSeriesGroups(series_groups_nodes)
+            self.AddRemainingComponents(added_components)
 
             components_for_edges = self.GetComponentsForEdges()
             self.GroupParallelBranches(components_for_edges)
@@ -36,6 +43,7 @@ class TopologyManager:
 
         if new_circuit_nodes == old_circuit_nodes:
             self.circuit.Show()
+
             return self
 
         else:
@@ -60,22 +68,23 @@ class TopologyManager:
 
         return possible_path
 
-    def OrderSeriesGroups(self):
-        for component in self.components:
-            if self.component_manager.IsSeriesGroup(component):
-                series_group_components = []
+    def OrderSeriesGroup(self, series_group):
+        series_group_components = []
 
-                possible_path = self.FindPossibleSeriesGroupPath(component)
-                series_group_path = [component.edge[0]] + possible_path + [component.edge[1]]
+        possible_path = self.FindPossibleSeriesGroupPath(series_group)
+        series_group_path = [series_group.edge[0]] + possible_path + [series_group.edge[1]]
 
-                for node_index in range(len(series_group_path) - 1):
-                    edge = (series_group_path[node_index], series_group_path[node_index + 1])
+        for node_index in range(len(series_group_path) - 1):
+            edge = (series_group_path[node_index], series_group_path[node_index + 1])
 
-                    component_to_add = component.FindComponentWithEdge(edge)
+            component_to_add = series_group.FindComponentWithEdge(edge)
 
-                    series_group_components.append(component_to_add)
+            series_group_components.append(component_to_add)
 
-                component.components = series_group_components
+        series_group.components = series_group_components
+        series_group.nodes = possible_path
+
+        return series_group
 
     def UpdateCircuit(self):
         self.circuit = MultiGraph()
@@ -173,22 +182,13 @@ class TopologyManager:
 
             added_components += components
 
-            if edge:
-                series_group = SeriesGroup(series_group_nodes, edge, components)
+            series_group = SeriesGroup(series_group_nodes, edge, components)
 
-                self.components.append(series_group)
+            ordered_series_group = self.OrderSeriesGroup(series_group)
 
-            else:
-                self.FindSeriesGroupIfNoEdge()
+            self.components.append(ordered_series_group)
 
-        for component in self.component_manager.GetComponents():
-            if component not in added_components:
-                self.components.append(component)
-
-    def FindSeriesGroupIfNoEdge(self):
-        for component in self.component_manager.GetComponents():
-            edge = component.edge
-            self.path_finder.GetComponentsBetweenNodes(edge[0], edge[1])
+        return added_components
 
     def GroupParallelBranches(self, components_for_edges):
         new_components = []

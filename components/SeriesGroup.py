@@ -13,8 +13,20 @@ class SeriesGroup:
 
     def FindComponentWithEdge(self, edge):
         for component in self.components:
-            if component.edge == edge or tuple(reversed(component.edge)) == edge:
+            component_edge = component.edge[:2]
+
+            if component_edge == edge or tuple(reversed(component_edge)) == edge:
                 return component
+
+    def GetGroupings(self):
+        groupings = []
+
+        for component in self.components:
+            component_type = component.component
+            if component_type is COMPONENT.PARALLEL_BRANCH or component_type is COMPONENT.SERIES_GROUP:
+                groupings.append(component)
+
+        return groupings
 
     def __str__(self):
         return f"(No. Comp: {len(self.components)} Nodes: {self.nodes} Edge: {self.edge} Current ID: {self.current.id})"
