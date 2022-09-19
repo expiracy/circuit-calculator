@@ -73,9 +73,12 @@ class PathFinder:
 
         return True
 
-    def FindPathsThroughComponent(self, current_component):
+    def FindPathsThroughComponent(self, current_component, next_start_node):
         outer_series_group = self.component_manager.IsSeriesGroup(current_component)
         outer_parallel_branch = self.component_manager.IsParallelBranch(current_component)
+
+        if not current_component.edge[0] == next_start_node:
+            current_component = current_component.Reverse()
 
         if not current_component.GetGroupings():
             if outer_parallel_branch:
@@ -86,22 +89,62 @@ class PathFinder:
 
             return current_component
 
-        components = current_component.components
+        current_component_with_inner_paths = self.FindAllInnerPathsOfGrouping(current_component, outer_series_group, outer_parallel_branch, next_start_node)
 
+        current_component_with_paths = self.SetComponentPaths(current_component_with_inner_paths,
+                                                              outer_series_group,
+                                                              outer_parallel_branch)
+
+        return current_component_with_paths
+
+    def FindAllInnerPathsOfGrouping(self, current_component, outer_series_group, outer_parallel_branch, last_start_node):
         components_with_paths = []
 
-        for component in components:
-            if self.component_manager.IsGrouping(component):
-                component_with_path = self.FindPathsThroughComponent(component)
+        if outer_series_group:
+            all_nodes = current_component.GetAllNodes()
 
-                components_with_paths.append(component_with_path)
+            for node_index in range(len(all_nodes) - 1):
+                edge = (all_nodes[node_index], all_nodes[node_index + 1])
 
-            else:
-                components_with_paths.append(component)
+                component = current_component.FindComponentWithEdge(edge)
+
+                if self.component_manager.IsGrouping(component):
+                    component_with_path = self.FindPathsThroughComponent(component, edge[0])
+
+                    components_with_paths.append(component_with_path)
+
+                else:
+                    components_with_paths.append(component)
+
+        else:
+            for component in current_component.components:
+                if self.component_manager.IsGrouping(component):
+                    if outer_parallel_branch:
+                        component_with_path = self.FindPathsThroughComponent(component, last_start_node)
+
+                    else:
+                        edge = current_component.edge[:2]
+
+                        if edge[0] != last_start_node:
+                            next_start_node = edge[0]
+
+                        else:
+                            next_start_node = edge[1]
+
+                        component_with_path = self.FindPathsThroughComponent(component, next_start_node)
+
+                    components_with_paths.append(component_with_path)
+
+                else:
+                    components_with_paths.append(component)
 
         current_component.components = components_with_paths
 
+        return current_component
+
+    def SetComponentPaths(self, current_component, outer_series_group, outer_parallel_branch):
         paths = []
+        components = current_component.components
 
         for component in components:
             inner_series_group = self.component_manager.IsSeriesGroup(component)
@@ -123,6 +166,7 @@ class PathFinder:
                     paths = []
 
                     for component_path in component.paths:
+
                         if old_paths:
                             for old_path in old_paths:
                                 new_path = old_path + component_path
@@ -141,8 +185,9 @@ class PathFinder:
 
             elif outer_parallel_branch:
                 if inner_series_group or inner_parallel_branch:
-                    for path in component.paths:
-                        paths.append(path)
+
+                    for component_path in component.paths:
+                        paths.append(component_path)
 
                 else:
                     paths.append([component])
@@ -150,4 +195,12 @@ class PathFinder:
         current_component.paths = paths
 
         return current_component
+
+    def AreEdgesContinuous(self, previous_edge, current_edge):
+        if previous_edge[1] == current_edge[0]:
+            return True
+
+        else:
+            return False
+
 

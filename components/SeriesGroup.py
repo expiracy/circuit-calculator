@@ -28,5 +28,15 @@ class SeriesGroup:
 
         return groupings
 
+    def Reverse(self):
+        self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
+        self.nodes = list(reversed(self.nodes))
+        self.components = list(reversed(self.components))
+
+        return self
+
+    def GetAllNodes(self):
+        return [self.edge[0]] + self.nodes + [self.edge[1]]
+
     def __str__(self):
         return f"(No. Comp: {len(self.components)} Nodes: {self.nodes} Edge: {self.edge} Current ID: {self.current.id})"

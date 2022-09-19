@@ -8,5 +8,10 @@ class Cell(PowerSource):
 
         self.component = COMPONENT.CELL
 
+    def Reverse(self):
+        self.edge = tuple(reversed(self.edge)[:2]) + self.edge[2:]
+
+        return self
+
     def __str__(self):
         return f"({self.component} {self.potential_difference} Edge: {self.edge} Current ID: {self.current.id})"

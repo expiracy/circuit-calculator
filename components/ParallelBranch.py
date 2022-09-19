@@ -20,5 +20,10 @@ class ParallelBranch:
 
         return groupings
 
+    def Reverse(self):
+        self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
+
+        return self
+
     def __str__(self):
         return f"(No. Comp: {len(self.components)} Edge: {self.edge} Current ID: {self.current.id})"

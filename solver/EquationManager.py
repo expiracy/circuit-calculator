@@ -28,7 +28,7 @@ class EquationManager:
                 component = self.component_manager.GetComponentsForEdge(edge)[0]
 
                 if self.component_manager.IsGrouping(component):
-                    component = self.path_finder.FindPathsThroughComponent(component)
+                    component = self.path_finder.FindPathsThroughComponent(component, edge[0])
 
                     self.OutputPathsForComponent(component)
 
@@ -43,7 +43,11 @@ class EquationManager:
             string_path = []
 
             for path_component in path:
-                string_path.append(str(path_component))
+                if self.component_manager.IsCell(path_component):
+                    string_path.append(path_component.potential_difference)
+
+                else:
+                    string_path.append(path_component.resistance)
 
             paths.append(string_path)
 

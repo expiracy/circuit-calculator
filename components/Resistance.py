@@ -8,5 +8,10 @@ class Resistance:
         self.current = Current()
         self.edge = edge
 
+    def Reverse(self):
+        self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
+
+        return self
+
     def __str__(self):
         return __name__

@@ -79,6 +79,12 @@ class TopologyManager:
 
             component_to_add = series_group.FindComponentWithEdge(edge)
 
+            # ensures the edges are contiguous
+            '''                
+            if edge != component_to_add.edge[:2]:
+                component_to_add = component_to_add.Reverse()
+            '''
+
             series_group_components.append(component_to_add)
 
         series_group.components = series_group_components
