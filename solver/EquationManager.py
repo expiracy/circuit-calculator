@@ -1,4 +1,6 @@
+import components.ParallelBranch
 from circuit.topology.PathFinder import PathFinder
+from circuit.topology.TopologyManager import TopologyManager
 
 
 class EquationManager:
@@ -26,123 +28,24 @@ class EquationManager:
                 component = self.component_manager.GetComponentsForEdge(edge)[0]
 
                 if self.component_manager.IsGrouping(component):
-                    component = self.FindPath(component)
+                    component = self.path_finder.FindPathsThroughComponent(component)
+
+                    self.OutputPathsForComponent(component)
 
                 self.equations[loop_index].append(component)
 
         print("test")
 
-    def FindPath(self, current_component):
-        outer_series_group = self.component_manager.IsSeriesGroup(current_component)
-        outer_parallel_branch = self.component_manager.IsParallelBranch(current_component)
+    def OutputPathsForComponent(self, component):
+        paths = []
 
-        if not current_component.GetGroupings():
-            if outer_parallel_branch:
-                current_component.paths = [[component] for component in current_component.components]
+        for path in component.paths:
+            string_path = []
 
-            elif outer_series_group:
-                current_component.paths = [current_component.components]
+            for path_component in path:
+                string_path.append(str(path_component))
 
-            return current_component
+            paths.append(string_path)
 
-        components = current_component.components
-
-        components_with_paths = []
-
-        for component in components:
-            if self.component_manager.IsGrouping(component):
-                component_with_path = self.FindPath(component)
-
-                components_with_paths.append(component_with_path)
-
-            else:
-                components_with_paths.append(component)
-
-        current_component.components = components_with_paths
-
-        paths = current_component.paths
-
-        for component in components:
-            inner_series_group = self.component_manager.IsSeriesGroup(component)
-            inner_parallel_branch = self.component_manager.IsParallelBranch(component)
-
-            if outer_series_group:
-                if inner_series_group:
-
-                    for component_path in component.paths:
-                        if paths:
-                            for path in paths:
-                                path += component_path
-
-                        else:
-                            paths.append(component_path)
-
-                elif inner_parallel_branch:
-                    old_paths = paths.copy()
-
-                    for component_path in component.paths:
-                        if paths:
-                            for old_path in old_paths:
-                                new_path = old_path + component_path
-                                paths.append(new_path)
-
-                        else:
-                            paths.append(component_path)
-
-                else:
-                    if paths:
-                        for path in paths:
-                            path += [component]
-
-                    else:
-                        paths.append([component])
-
-            elif outer_parallel_branch:
-                if inner_series_group or inner_parallel_branch:
-                    for path in component.paths:
-                        paths.append(path)
-
-                else:
-                    paths.append([component])
-
-        return current_component
-
-    def FindPaths(self, component, paths, stack, finished):
-        if self.component_manager.IsSeriesGroup(component):
-            groupings = component.GetGroupings()
-
-            if not groupings:
-                component.paths = [[component.components]]
-
-                finished.append(component)
-
-            else:
-                stack.append(groupings)
-
-                self.FindPaths(component, paths, stack, finished)
-
-        elif self.component_manager.IsParallelBranch(component):
-            groupings = component.GetSeriesGroups()
-
-            if not groupings:
-                component.paths = [[component] for component in component.components]
-
-                finished.append(component)
-
-            else:
-                stack.append(groupings)
-
-
-        next_component = stack.pop()
-        self.FindPaths(next_component, paths, stack, finished)
-
-
-
-
-
-
-
-
-
-
-
+        for path in paths:
+            print(f"EDGE: {component.edge} PATH: {path}\n")

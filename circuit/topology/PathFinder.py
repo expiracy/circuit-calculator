@@ -73,3 +73,81 @@ class PathFinder:
 
         return True
 
+    def FindPathsThroughComponent(self, current_component):
+        outer_series_group = self.component_manager.IsSeriesGroup(current_component)
+        outer_parallel_branch = self.component_manager.IsParallelBranch(current_component)
+
+        if not current_component.GetGroupings():
+            if outer_parallel_branch:
+                current_component.paths = [[component] for component in current_component.components]
+
+            elif outer_series_group:
+                current_component.paths = [current_component.components]
+
+            return current_component
+
+        components = current_component.components
+
+        components_with_paths = []
+
+        for component in components:
+            if self.component_manager.IsGrouping(component):
+                component_with_path = self.FindPathsThroughComponent(component)
+
+                components_with_paths.append(component_with_path)
+
+            else:
+                components_with_paths.append(component)
+
+        current_component.components = components_with_paths
+
+        paths = []
+
+        for component in components:
+            inner_series_group = self.component_manager.IsSeriesGroup(component)
+            inner_parallel_branch = self.component_manager.IsParallelBranch(component)
+
+            if outer_series_group:
+                if inner_series_group:
+
+                    for component_path in component.paths:
+                        if paths:
+                            for path in paths:
+                                path += component_path
+
+                        else:
+                            paths.append(component_path)
+
+                elif inner_parallel_branch:
+                    old_paths = paths.copy()
+                    paths = []
+
+                    for component_path in component.paths:
+                        if old_paths:
+                            for old_path in old_paths:
+                                new_path = old_path + component_path
+                                paths.append(new_path)
+
+                        else:
+                            paths.append(component_path)
+
+                else:
+                    if paths:
+                        for path in paths:
+                            path += [component]
+
+                    else:
+                        paths.append([component])
+
+            elif outer_parallel_branch:
+                if inner_series_group or inner_parallel_branch:
+                    for path in component.paths:
+                        paths.append(path)
+
+                else:
+                    paths.append([component])
+
+        current_component.paths = paths
+
+        return current_component
+
