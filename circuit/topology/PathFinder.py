@@ -1,6 +1,7 @@
 from graph.Graph import Graph
 from graph.MultiGraph import MultiGraph
 from circuit.ComponentManager import ComponentManager
+import random as rd
 
 
 class PathFinder:
@@ -25,7 +26,11 @@ class PathFinder:
         self.paths = list(sorted(self.paths, key=len))
 
     def FindAllLoops(self):
-        self.paths = [[0] + path for path in self.circuit.DFS(0, 0)]
+        nodes = list(self.circuit.GetNodes())
+        random_index = rd.randint(0, len(nodes) - 1)
+        start_and_end_node = nodes[random_index]
+
+        self.paths = [[start_and_end_node] + path for path in self.circuit.DFS(start_and_end_node, start_and_end_node)]
 
         self.RemoveDuplicateLoops()
 
