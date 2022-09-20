@@ -24,16 +24,19 @@ class EquationManager:
             for path_component in loops_paths[path_index]:
                 component = path_component.component
 
+                symbol = component.current.symbol
+                direction = path_component.direction
+
                 if self.component_manager.IsCell(component):
-                    self.equations[path_index].append(component.potential_difference)
+                    potential_difference = sym.symbols(f"{direction}{component.potential_difference}")
 
                 else:
-                    if path_component.direction == '-':
-                        pass
+                    potential_difference = component.resistance * sym.symbols(f"{direction}{symbol}")
 
-                    self.equations[path_index].append(component.resistance * sym.symbols(f"{path_component.direction}{path_component.component.current.symbol}"))
+                self.equations[path_index].append(potential_difference)
 
-            print(self.equations)
+        for equation in self.equations:
+            print(equation)
 
 
 

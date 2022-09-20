@@ -269,6 +269,7 @@ class PathFinder:
 
     def RemoveInvalidLoopsPaths(self, loops_paths):
         valid_loops_paths = []
+        valid_component_loops_paths = []
 
         for loop_path in loops_paths:
             component_and_count = {}
@@ -284,8 +285,11 @@ class PathFinder:
                 else:
                     valid = False
 
-            if valid and list(reversed(loop_path)) not in valid_loops_paths:
+            component_loop_path = [path_component.component for path_component in loop_path]
+
+            if valid and list(reversed(component_loop_path)) not in valid_component_loops_paths:
                 valid_loops_paths.append(loop_path)
+                valid_component_loops_paths.append(component_loop_path)
 
         return valid_loops_paths
 
