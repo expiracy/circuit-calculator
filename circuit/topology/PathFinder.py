@@ -20,7 +20,7 @@ class PathFinder:
         self.RemoveDuplicateLoops()
         self.RemoveInvalidLoops()
 
-        return self.paths
+        return self.paths.copy()
 
     def SortLoops(self):
         self.paths = list(sorted(self.paths, key=len))
@@ -135,7 +135,7 @@ class PathFinder:
                         else:
                             next_start_node = edge[1]
 
-                        component_with_path = self.FindPathsThroughComponent(component, next_start_node)
+                        component_with_paths = self.FindPathsThroughComponent(component, next_start_node)
 
                     components_with_paths.append(component_with_paths)
 
@@ -223,5 +223,51 @@ class PathFinder:
 
         return self
 
+    def GetPathsForLoops(self):
+        loops = self.FindLoops()
+
+        loop_paths = {}
+
+        for loop_index in range(len(loops)):
+            loop = loops[loop_index]
+            loop_paths[tuple(loop)] = {}
+
+            for node_index in range(len(loop) - 1):
+                edge = (loop[node_index], loop[node_index + 1])
+                loop_paths[tuple(loop)][edge] = []
+
+                edge_paths = loop_paths[tuple(loop)][edge]
+
+                component = self.component_manager.GetComponentsForEdge(edge)[0]
+
+                if self.component_manager.IsGrouping(component):
+                    component_with_paths = self.FindPathsThroughComponent(component, edge[0])
+
+                    #self.OutputPathsForComponent(component_with_paths)
+
+                    edge_paths += component_with_paths.paths
+
+                else:
+                    edge_paths.append([component])
+
+        return loop_paths
+
+    def OutputPathsForComponent(self, component):
+        paths = []
+
+        for path in component.paths:
+            string_path = []
+
+            for path_component in path:
+                if self.component_manager.IsCell(path_component):
+                    string_path.append(path_component.potential_difference)
+
+                else:
+                    string_path.append(path_component.resistance)
+
+            paths.append(string_path)
+
+        for path in paths:
+            print(f"EDGE: {component.edge} PATH: {path}\n")
 
 

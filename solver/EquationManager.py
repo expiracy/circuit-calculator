@@ -15,41 +15,34 @@ class EquationManager:
         self.equations = []
 
     def FindEquations(self):
-        loops = self.path_finder.FindLoops()
+        loop_paths = self.path_finder.GetPathsForLoops()
 
-        for loop_index in range(len(loops)):
-            self.equations.append([])
+        self.OutputLoopPaths(loop_paths)
 
-            loop = loops[loop_index]
+    def OutputLoopPaths(self, loop_paths):
+        for loop, edge_and_paths in loop_paths.items():
+            print("----------------------------------------------")
+            print(f"LOOP: {loop}")
 
-            for node_index in range(len(loop) - 1):
-                edge = (loop[node_index], loop[node_index + 1])
+            for edge, paths in edge_and_paths.items():
+                print(f"EDGE: {edge}")
 
-                component = self.component_manager.GetComponentsForEdge(edge)[0]
+                value_paths = []
 
-                if self.component_manager.IsGrouping(component):
-                    component_with_paths = self.path_finder.FindPathsThroughComponent(component, edge[0])
+                for path in paths:
+                    value_path = []
 
-                    self.OutputPathsForComponent(component)
+                    for component in path:
+                        if self.component_manager.IsCell(component):
+                            value_path.append(component.potential_difference)
 
-                self.equations[loop_index].append(component)
+                        else:
+                            value_path.append(component.resistance)
 
-        print("test")
+                    value_paths.append(value_path)
 
-    def OutputPathsForComponent(self, component):
-        paths = []
+                print(value_paths)
 
-        for path in component.paths:
-            string_path = []
 
-            for path_component in path:
-                if self.component_manager.IsCell(path_component):
-                    string_path.append(path_component.potential_difference)
 
-                else:
-                    string_path.append(path_component.resistance)
 
-            paths.append(string_path)
-
-        for path in paths:
-            print(f"EDGE: {component.edge} PATH: {path}\n")
