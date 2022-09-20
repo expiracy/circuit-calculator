@@ -33,7 +33,8 @@ class CircuitManager:
 
         self.topology_manager.SimplifyTopology()
 
-        self.current_manager.AssignCurrentDirections(self.topology_manager.components)
+        self.current_manager.AssignCurrents(self.topology_manager.components)
+        #self.current_manager.SimplifyCurrents(self.topology_manager.components)
 
         equation_manager = EquationManager(self.topology_manager.circuit,
                                            ComponentManager(self.topology_manager.circuit),
@@ -78,5 +79,5 @@ class CircuitManager:
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit6.txt"
+    file = "../testing/Circuit1.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

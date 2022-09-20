@@ -271,7 +271,7 @@ class PathFinder:
                 else:
                     valid = False
 
-            if valid:
+            if valid and list(reversed(loop_path)) not in valid_loops_paths:
                 valid_loops_paths.append(loop_path)
 
         return valid_loops_paths
@@ -316,16 +316,9 @@ class PathFinder:
         paths = []
 
         for path in component.paths:
-            string_path = []
+            value_path = self.GetValueListFromComponentList(path)
 
-            for path_component in path:
-                if self.component_manager.IsCell(path_component):
-                    string_path.append(path_component.potential_difference)
-
-                else:
-                    string_path.append(path_component.resistance)
-
-            paths.append(string_path)
+            paths.append(value_path)
 
         for path in paths:
             print(f"EDGE: {component.edge} PATH: {path}\n")
@@ -342,14 +335,7 @@ class PathFinder:
                 value_paths = []
 
                 for path in paths:
-                    value_path = []
-
-                    for component in path:
-                        if self.component_manager.IsCell(component):
-                            value_path.append(component.potential_difference)
-
-                        else:
-                            value_path.append(component.resistance)
+                    value_path = self.GetValueListFromComponentList(path)
 
                     value_paths.append(value_path)
 
@@ -359,16 +345,21 @@ class PathFinder:
 
     def OutputLoopsPaths(self, loops_paths):
         for loop_path in loops_paths:
-            string_path = []
-
-            for component in loop_path:
-                if self.component_manager.IsCell(component):
-                    string_path.append(component.potential_difference)
-
-                else:
-                    string_path.append(component.resistance)
+            string_path = self.GetValueListFromComponentList(loop_path)
 
             print(string_path)
+
+    def GetValueListFromComponentList(self, component_list):
+        value_list = []
+
+        for component in component_list:
+            if self.component_manager.IsCell(component):
+                value_list.append(component.potential_difference)
+
+            else:
+                value_list.append(component.resistance)
+
+        return value_list
 
 
 

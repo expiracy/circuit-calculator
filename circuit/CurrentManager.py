@@ -1,6 +1,6 @@
 from circuit.topology.PathFinder import PathFinder
 from circuit.Current import Current
-
+import sympy as sym
 
 class CurrentManager:
     def __init__(self, circuit=None, topology_manager=None, junction_manager=None, component_manager=None):
@@ -10,28 +10,40 @@ class CurrentManager:
         self.junction_manager = junction_manager
         self.component_manager = component_manager
 
+        self.available_current_symbols = list(map(chr, range(97, 123)))
+
         self.current_id = 0
 
     def GenerateNewCurrent(self):
         self.current_id += 1
+        symbol = self.available_current_symbols[self.current_id - 1]
         current = Current(self.current_id)
+
+        current.SetSymbol(symbol)
 
         return current
 
-    def AssignCurrentDirections(self, components, current=None, is_parallel_branch=False):
-        if current is None and is_parallel_branch is False:
+    def AssignCurrents(self, components, current=None, outer_parallel_branch=False):
+        if current is None and outer_parallel_branch is False:
             current = self.GenerateNewCurrent()
 
         for component in components:
-            if is_parallel_branch:
+            if outer_parallel_branch:
                 current = self.GenerateNewCurrent()
 
             component.current = current
 
-            if self.component_manager.IsParallelBranch(component):
-                self.AssignCurrentDirections(component.components, None, True)
+            inner_series_group = self.component_manager.IsSeriesGroup(component)
+            inner_parallel_branch = self.component_manager.IsParallelBranch(component)
 
-            elif self.component_manager.IsSeriesGroup(component):
-                self.AssignCurrentDirections(component.components, current, False)
+            if inner_parallel_branch:
+                self.AssignCurrents(component.components, None, True)
+
+            elif inner_series_group:
+                self.AssignCurrents(component.components, current, False)
 
         return self
+
+
+
+
