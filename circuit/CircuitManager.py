@@ -63,7 +63,6 @@ class CircuitManager:
 
         return self
 
-
     def GetComponentsOnLoop(self, loop):
         components_on_loop = []
 
@@ -79,5 +78,5 @@ class CircuitManager:
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit9.txt"
+    file = "../testing/Circuit6.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

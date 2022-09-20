@@ -15,33 +15,9 @@ class EquationManager:
         self.equations = []
 
     def FindEquations(self):
-        loop_paths = self.path_finder.GetPathsForLoops()
+        loops_paths = self.path_finder.GetLoopsPaths()
 
-        self.OutputLoopPaths(loop_paths)
 
-    def OutputLoopPaths(self, loop_paths):
-        for loop, edge_and_paths in loop_paths.items():
-            print("----------------------------------------------")
-            print(f"LOOP: {loop}")
-
-            for edge, paths in edge_and_paths.items():
-                print(f"EDGE: {edge}")
-
-                value_paths = []
-
-                for path in paths:
-                    value_path = []
-
-                    for component in path:
-                        if self.component_manager.IsCell(component):
-                            value_path.append(component.potential_difference)
-
-                        else:
-                            value_path.append(component.resistance)
-
-                    value_paths.append(value_path)
-
-                print(value_paths)
 
 
 

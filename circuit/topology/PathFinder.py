@@ -27,8 +27,12 @@ class PathFinder:
 
     def FindAllLoops(self):
         nodes = list(self.circuit.GetNodes())
-        start_and_end_node = nodes[0]
-        self.paths = [[start_and_end_node] + path for path in self.circuit.DFS(start_and_end_node, start_and_end_node)]
+
+        node = nodes[0]
+
+        loops_for_node = [[node] + path for path in self.circuit.DFS(node, node)]
+
+        self.paths += loops_for_node
 
         self.RemoveDuplicateLoops()
 
@@ -223,20 +227,20 @@ class PathFinder:
 
         return self
 
-    def GetPathsForLoops(self):
+    def GetEdgePathsForLoop(self):
         loops = self.FindLoops()
 
-        loop_paths = {}
+        edge_paths_for_loops = {}
 
         for loop_index in range(len(loops)):
             loop = loops[loop_index]
-            loop_paths[tuple(loop)] = {}
+            edge_paths_for_loops[tuple(loop)] = {}
 
             for node_index in range(len(loop) - 1):
                 edge = (loop[node_index], loop[node_index + 1])
-                loop_paths[tuple(loop)][edge] = []
+                edge_paths_for_loops[tuple(loop)][edge] = []
 
-                edge_paths = loop_paths[tuple(loop)][edge]
+                edge_paths = edge_paths_for_loops[tuple(loop)][edge]
 
                 component = self.component_manager.GetComponentsForEdge(edge)[0]
 
@@ -249,6 +253,62 @@ class PathFinder:
 
                 else:
                     edge_paths.append([component])
+
+        return edge_paths_for_loops
+
+    def RemoveInvalidLoopsPaths(self, loops_paths):
+        valid_loops_paths = []
+
+        for loop_path in loops_paths:
+            component_and_count = {}
+
+            valid = True
+
+            for component in loop_path:
+                if component not in component_and_count.keys():
+                    component_and_count[component] = 1
+
+                else:
+                    valid = False
+
+            if valid:
+                valid_loops_paths.append(loop_path)
+
+        return valid_loops_paths
+
+    def GetLoopsPaths(self):
+        edge_paths_for_loops = self.GetEdgePathsForLoop()
+        self.OutputEdgePathsForLoops(edge_paths_for_loops)
+
+        loops_paths = []
+
+        for loop, edge_and_paths in edge_paths_for_loops.items():
+            loop_paths = []
+
+            for edge, paths in edge_and_paths.items():
+                loop_paths = self.CreateLoopPaths(paths, loop_paths)
+
+            loops_paths += loop_paths
+
+        loops_paths = self.RemoveInvalidLoopsPaths(loops_paths)
+
+        self.OutputLoopsPaths(loops_paths)
+
+        return loops_paths
+
+    def CreateLoopPaths(self, paths, loop_paths):
+        if loop_paths:
+            old_loop_paths = loop_paths.copy()
+            loop_paths = []
+
+            for old_loop_path in old_loop_paths:
+                for path in paths:
+                    extended_path = old_loop_path + path
+
+                    loop_paths.append(extended_path)
+
+        else:
+            loop_paths += paths
 
         return loop_paths
 
@@ -269,5 +329,47 @@ class PathFinder:
 
         for path in paths:
             print(f"EDGE: {component.edge} PATH: {path}\n")
+
+    def OutputEdgePathsForLoops(self, loop_paths):
+        print("--------------------------------------------------------------------")
+
+        for loop, edge_and_paths in loop_paths.items():
+            print(f"LOOP: {loop}:")
+
+            for edge, paths in edge_and_paths.items():
+                print(f"EDGE: {edge}:")
+
+                value_paths = []
+
+                for path in paths:
+                    value_path = []
+
+                    for component in path:
+                        if self.component_manager.IsCell(component):
+                            value_path.append(component.potential_difference)
+
+                        else:
+                            value_path.append(component.resistance)
+
+                    value_paths.append(value_path)
+
+                print(value_paths)
+
+            print("--------------------------------------------------------------------")
+
+    def OutputLoopsPaths(self, loops_paths):
+        for loop_path in loops_paths:
+            string_path = []
+
+            for component in loop_path:
+                if self.component_manager.IsCell(component):
+                    string_path.append(component.potential_difference)
+
+                else:
+                    string_path.append(component.resistance)
+
+            print(string_path)
+
+
 
 
