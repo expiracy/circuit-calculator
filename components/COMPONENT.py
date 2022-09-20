@@ -9,3 +9,8 @@ class COMPONENT(Enum):
 
     def __str__(self):
         return self.name
+
+
+class Component:
+    def __init__(self):
+        pass

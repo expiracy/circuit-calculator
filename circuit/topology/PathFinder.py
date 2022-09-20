@@ -1,6 +1,8 @@
 from graph.Graph import Graph
 from graph.MultiGraph import MultiGraph
 from circuit.ComponentManager import ComponentManager
+from components.PathComponent import PathComponent
+from components.Paths import Paths
 import random as rd
 
 
@@ -8,7 +10,9 @@ class PathFinder:
     def __init__(self, circuit):
         self.circuit = circuit
         self.component_manager = ComponentManager(circuit)
-        self.paths = []
+
+        paths = Paths()
+        self.paths = paths.paths
 
     def FindPathsBetween(self, node_1, node_2):
         paths = [[] + path[:-1] for path in self.circuit.DFS(node_1, node_2)]
@@ -234,13 +238,20 @@ class PathFinder:
 
         for loop_index in range(len(loops)):
             loop = loops[loop_index]
-            edge_paths_for_loops[tuple(loop)] = {}
+            loop_tuple = tuple(loop)
+
+            edge_paths_for_loops[loop_tuple] = {}
 
             for node_index in range(len(loop) - 1):
                 edge = (loop[node_index], loop[node_index + 1])
-                edge_paths_for_loops[tuple(loop)][edge] = []
 
-                edge_paths = edge_paths_for_loops[tuple(loop)][edge]
+                paths = Paths()
+
+                if tuple(reversed(edge)) in edge_paths_for_loops[loop_tuple].keys():
+                    paths.direction = '-'
+
+                edge_paths_for_loops[loop_tuple][edge] = paths
+                edge_paths = edge_paths_for_loops[loop_tuple][edge].paths
 
                 component = self.component_manager.GetComponentsForEdge(edge)[0]
 
@@ -264,7 +275,9 @@ class PathFinder:
 
             valid = True
 
-            for component in loop_path:
+            for path_component in loop_path:
+                component = path_component.component
+
                 if component not in component_and_count.keys():
                     component_and_count[component] = 1
 
@@ -286,7 +299,10 @@ class PathFinder:
             loop_paths = []
 
             for edge, paths in edge_and_paths.items():
-                loop_paths = self.CreateLoopPaths(paths, loop_paths)
+                direction = paths.direction
+                paths = paths.paths
+
+                loop_paths = self.CreateLoopPaths(paths, loop_paths, direction)
 
             loops_paths += loop_paths
 
@@ -296,19 +312,28 @@ class PathFinder:
 
         return loops_paths
 
-    def CreateLoopPaths(self, paths, loop_paths):
+    def CreateLoopPaths(self, paths, loop_paths, direction):
+        path_component_paths = []
+
+        for path_index in range(len(paths)):
+            path_component_paths.append([])
+
+            for component in paths[path_index]:
+                path_component = PathComponent(component, direction)
+                path_component_paths[path_index].append(path_component)
+
         if loop_paths:
             old_loop_paths = loop_paths.copy()
             loop_paths = []
 
             for old_loop_path in old_loop_paths:
-                for path in paths:
-                    extended_path = old_loop_path + path
+                for path_component_path in path_component_paths:
+                    extended_path = old_loop_path + path_component_path
 
                     loop_paths.append(extended_path)
 
         else:
-            loop_paths += paths
+            loop_paths += path_component_paths
 
         return loop_paths
 
@@ -330,11 +355,11 @@ class PathFinder:
             print(f"LOOP: {loop}:")
 
             for edge, paths in edge_and_paths.items():
-                print(f"EDGE: {edge}:")
+                print(f"EDGE: {edge} DIRECTION: {paths.direction}")
 
                 value_paths = []
 
-                for path in paths:
+                for path in paths.paths:
                     value_path = self.GetValueListFromComponentList(path)
 
                     value_paths.append(value_path)
@@ -345,9 +370,16 @@ class PathFinder:
 
     def OutputLoopsPaths(self, loops_paths):
         for loop_path in loops_paths:
-            string_path = self.GetValueListFromComponentList(loop_path)
+            value_list = []
 
-            print(string_path)
+            for component in loop_path:
+                if self.component_manager.IsCell(component.component):
+                    value_list.append(component.component.potential_difference)
+
+                else:
+                    value_list.append(component.component.resistance)
+
+            print(value_list)
 
     def GetValueListFromComponentList(self, component_list):
         value_list = []

@@ -19,7 +19,7 @@ class CurrentManager:
         symbol = self.available_current_symbols[self.current_id - 1]
         current = Current(self.current_id)
 
-        current.SetSymbol(symbol)
+        current.symbol = symbol
 
         return current
 
