@@ -1,8 +1,6 @@
-import components.ParallelBranch
-from circuit.topology.PathFinder import PathFinder
-from circuit.topology.TopologyManager import TopologyManager
+from circuit.path.PathFinder import PathFinder
 import sympy as sym
-from sympy.parsing.sympy_parser import parse_expr
+
 
 class EquationManager:
     def __init__(self, circuit, component_manager=None, topology_manager=None, junction_manager=None):
@@ -25,13 +23,13 @@ class EquationManager:
                 component = path_component.component
 
                 symbol = component.current.symbol
-                direction = path_component.direction
+                sign = path_component.sign
 
                 if self.component_manager.IsCell(component):
-                    potential_difference = sym.symbols(f"{direction}{component.potential_difference}")
+                    potential_difference = sym.symbols(f"{sign}{component.potential_difference}")
 
                 else:
-                    potential_difference = component.resistance * sym.symbols(f"{direction}{symbol}")
+                    potential_difference = component.resistance * sym.symbols(f"{sign}{symbol}")
 
                 self.equations[path_index].append(potential_difference)
 

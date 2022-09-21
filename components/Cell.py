@@ -7,9 +7,10 @@ class Cell(PowerSource):
         super().__init__(potential_difference, internal_resistance, current)
 
         self.component = COMPONENT.CELL
+        self.positive_terminal = None
 
     def Reverse(self):
-        self.edge = tuple(reversed(self.edge)[:2]) + self.edge[2:]
+        #self.edge = tuple(reversed(self.edge)[:2]) + self.edge[2:]
 
         return self
 

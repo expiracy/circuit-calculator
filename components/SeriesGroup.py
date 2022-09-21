@@ -1,6 +1,5 @@
 from circuit.Current import Current
 from components.COMPONENT import COMPONENT
-from components.Paths import Paths
 
 
 class SeriesGroup:

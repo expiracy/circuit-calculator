@@ -1,6 +1,5 @@
-from circuit.topology.PathFinder import PathFinder
 from circuit.Current import Current
-import sympy as sym
+
 
 class CurrentManager:
     def __init__(self, circuit=None, topology_manager=None, junction_manager=None, component_manager=None):

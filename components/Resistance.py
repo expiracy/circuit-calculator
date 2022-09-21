@@ -9,7 +9,7 @@ class Resistance:
         self.edge = edge
 
     def Reverse(self):
-        self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
+        #self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]
 
         return self
 

@@ -1,12 +1,9 @@
-from itertools import permutations, chain
 from graph.MultiGraph import MultiGraph
 from circuit.NetList import NetList
 from circuit.CurrentManager import CurrentManager
 from circuit.ComponentManager import ComponentManager
 from circuit.topology.JunctionsManager import JunctionsManager
 from circuit.topology.TopologyManager import TopologyManager
-from circuit.topology.PathFinder import PathFinder
-from circuit.topology.PathFinder import PathFinder
 from solver.EquationManager import EquationManager
 
 
@@ -48,9 +45,17 @@ class CircuitManager:
     def AddComponentToCircuit(self, left_node, right_node, component_type, value):
         component_class = self.component_manager.CreateComponent(component_type, value)
 
+        if left_node[-1] == '+':
+            left_node = int(left_node[:-1])
+            component_class.positive_terminal = left_node
+
+        elif right_node[-1] == '+':
+            right_node = int(right_node[:-1])
+            component_class.positive_terminal = right_node
+
         attribute = {'component': component_class}
 
-        self.circuit.AddEdge(left_node, right_node, **attribute)
+        self.circuit.AddEdge(int(left_node), int(right_node), **attribute)
 
     def CreateCircuitFromNetListFile(self, net_list_file):
         net_list = NetList().LoadFile(net_list_file)
@@ -79,5 +84,5 @@ class CircuitManager:
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit9.txt"
+    file = "../testing/Circuit7.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

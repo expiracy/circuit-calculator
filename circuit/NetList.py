@@ -25,10 +25,10 @@ class NetList:
         return [item[0] for item in self.net_list]
 
     def GetLeftNodes(self):
-        return [int(item[1]) for item in self.net_list]
+        return [item[1] for item in self.net_list]
 
     def GetRightNodes(self):
-        return [int(item[2]) for item in self.net_list]
+        return [item[2]for item in self.net_list]
 
     def GetValues(self):
         return [int(item[3]) for item in self.net_list]
@@ -53,8 +53,3 @@ class NetList:
 
         return components_details
 
-
-if __name__ == "__main__":
-    NetList = NetList("../testing/Circuit1.txt")
-    print(NetList.GetComponents())
-    print(NetList.GetLeftNodes())

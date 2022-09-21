@@ -1,6 +1,6 @@
 from components.ParallelBranch import ParallelBranch
 from components.SeriesGroup import SeriesGroup
-from circuit.topology.PathFinder import PathFinder
+from circuit.path.PathFinder import PathFinder
 from graph.MultiGraph import MultiGraph
 
 

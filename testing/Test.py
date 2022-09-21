@@ -8,6 +8,8 @@ class Test:
 if __name__ == '__main__':
     test = Test()
 
+    epic = sym.Symbol('dsdadsadsd')
+
     eq1 = sym.Eq(test.symbol + test.symbol2, 5)
     eq2 = sym.Eq(test.symbol ** 2 + test.symbol2 ** 2, 17)
 

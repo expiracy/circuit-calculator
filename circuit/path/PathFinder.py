@@ -1,9 +1,7 @@
-from graph.Graph import Graph
-from graph.MultiGraph import MultiGraph
 from circuit.ComponentManager import ComponentManager
-from components.PathComponent import PathComponent
-from components.Paths import Paths
-import random as rd
+from circuit.path.PathResistor import PathResistor
+from circuit.path.PathCell import PathCell
+from circuit.path.Paths import Paths
 
 
 class PathFinder:
@@ -248,7 +246,7 @@ class PathFinder:
                 paths = Paths()
 
                 if tuple(reversed(edge)) in edge_paths_for_loops[loop_tuple].keys():
-                    paths.direction = '-'
+                    paths.direction = '+'
 
                 edge_paths_for_loops[loop_tuple][edge] = paths
                 edge_paths = edge_paths_for_loops[loop_tuple][edge].paths
@@ -306,7 +304,7 @@ class PathFinder:
                 direction = paths.direction
                 paths = paths.paths
 
-                loop_paths = self.CreateLoopPaths(paths, loop_paths, direction)
+                loop_paths = self.CreateLoopPaths(paths, loop_paths, direction, edge)
 
             loops_paths += loop_paths
 
@@ -316,14 +314,31 @@ class PathFinder:
 
         return loops_paths
 
-    def CreateLoopPaths(self, paths, loop_paths, direction):
+    def ConvertComponentToPathComponent(self, component, sign, edge):
+        if self.component_manager.IsCell(component):
+            positive_terminal = component.positive_terminal
+
+            if edge[1] == positive_terminal:
+                path_component = PathCell(component, '+')
+
+            else:
+                path_component = PathCell(component, '-')
+
+        else:
+            path_component = PathResistor(component, sign)
+
+        return path_component
+
+    def CreateLoopPaths(self, paths, loop_paths, sign, edge):
         path_component_paths = []
 
         for path_index in range(len(paths)):
             path_component_paths.append([])
+            path = paths[path_index]
 
-            for component in paths[path_index]:
-                path_component = PathComponent(component, direction)
+            for component in path:
+                path_component = self.ConvertComponentToPathComponent(component, sign, edge)
+
                 path_component_paths[path_index].append(path_component)
 
         if loop_paths:
