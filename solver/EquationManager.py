@@ -58,9 +58,7 @@ class EquationManager:
                 else:
                     expression = f"{current.symbol}-"
 
-                # may need to recurse deeper
                 for current_component in current.components:
-
                     expression += f"{current_component.symbol}-"
 
                 expression = expression[:-1]

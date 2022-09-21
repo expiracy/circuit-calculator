@@ -32,7 +32,6 @@ class CircuitManager:
         self.topology_manager.SimplifyTopology()
 
         self.current_manager.AssignCurrents(self.topology_manager.components)
-        #self.current_manager.SimplifyCurrents(self.topology_manager.components)
 
         equation_manager = EquationManager(self.topology_manager.circuit,
                                            ComponentManager(self.topology_manager.circuit),
@@ -40,13 +39,19 @@ class CircuitManager:
                                            self.junction_manager)
 
         equations = equation_manager.FindEquations()
+        solutions = Solver(equations).Solve()
 
-        Solver(equations).Solve()
+        self.current_manager.SetCurrentValues(solutions)
+        self.component_manager.CalculatePotentialDifferences()
+
+        for component in self.component_manager.GetComponents():
+            print(str(component))
+            print()
 
         return self
 
-    def AddComponentToCircuit(self, left_node, right_node, component_type, value):
-        component_class = self.component_manager.CreateComponent(component_type, value)
+    def AddComponentToCircuit(self, id, left_node, right_node, component_type, value):
+        component_class = self.component_manager.CreateComponent(component_type, value, id)
 
         if left_node[-1] == '+':
             left_node = int(left_node[:-1])
@@ -55,6 +60,9 @@ class CircuitManager:
         elif right_node[-1] == '+':
             right_node = int(right_node[:-1])
             component_class.positive_terminal = right_node
+
+        else:
+            component_class.positive_terminal = int(right_node)
 
         attribute = {'component': component_class}
 
@@ -91,5 +99,5 @@ class CircuitManager:
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit9.txt"
+    file = "../testing/Circuit6.txt"
     circuit_manager = CircuitManager(circuit).Main(file)

@@ -47,6 +47,23 @@ class CurrentManager:
 
         return self
 
+    def SetCurrentValues(self, solutions):
+        print(solutions)
+        components = self.component_manager.GetComponents()
+
+        for component in components:
+            symbol = str(component.current.symbol)
+
+            if symbol in solutions.keys():
+                component.current.value = solutions[symbol]
+
+            else:
+                component.current.value = 0
+
+        return self
+
+
+
 
 
 

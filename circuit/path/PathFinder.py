@@ -18,21 +18,27 @@ class PathFinder:
 
         return paths
 
-    def FindLoops(self):
-        self.FindAllLoops()
+    def FindLoops(self, node):
+        self.FindAllLoops(node)
         self.RemoveDuplicateLoops()
         self.RemoveInvalidLoops()
 
         return self.paths.copy()
 
+    def FindAllLoopsAroundAllNodes(self):
+        loops = []
+
+        for node in self.circuit.GetNodes():
+            loops_for_node = [[node] + path for path in self.circuit.DFS(node, node)]
+
+            loops += loops_for_node
+
+        return loops
+
     def SortLoops(self):
         self.paths = list(sorted(self.paths, key=len))
 
-    def FindAllLoops(self):
-        nodes = list(self.circuit.GetNodes())
-
-        node = nodes[0]
-
+    def FindAllLoops(self, node):
         loops_for_node = [[node] + path for path in self.circuit.DFS(node, node)]
 
         self.paths += loops_for_node
@@ -230,8 +236,15 @@ class PathFinder:
 
         return self
 
+    def FindInnerLoops(self, components, loop, edge):
+        for component in components:
+            pass
+
     def GetEdgePathsForLoop(self):
-        loops = self.FindLoops()
+        node = list(self.circuit.GetNodes())[0]
+        loops = self.FindLoops(node)
+
+        #loops = self.FindAllLoopsAroundAllNodes()
 
         edge_paths_for_loops = {}
 
@@ -255,9 +268,9 @@ class PathFinder:
                 component = self.component_manager.GetComponentsForEdge(edge)[0]
 
                 if self.component_manager.IsGrouping(component):
-                    component_with_paths = self.FindPathsThroughComponent(component, edge[0])
+                    inner_loops = self.FindInnerLoops(component.components, loop, edge)
 
-                    #self.OutputPathsForComponent(component_with_paths)
+                    component_with_paths = self.FindPathsThroughComponent(component, edge[0])
 
                     edge_paths += component_with_paths.paths
 
@@ -336,7 +349,7 @@ class PathFinder:
 
                 return path_component
 
-    def CreateGraphOfPath(self, path):
+    def CreateGraphOfComponents(self, path):
         graph = MultiGraph()
 
         for component in path:
@@ -353,7 +366,7 @@ class PathFinder:
             path_component_paths.append([])
             path = paths[path_index]
 
-            graph = self.CreateGraphOfPath(path)
+            graph = self.CreateGraphOfComponents(path)
             graph_path = [[edge[0]] + path for path in graph.DFS(edge[0], edge[1])][0]
 
             for component in path:

@@ -29,10 +29,10 @@ class ComponentManager:
 
         return component
 
-    def CreateComponent(self, component_type, value):
+    def CreateComponent(self, component_type, value, id):
         components = {
-            ComponentType.RESISTOR: Resistor(resistance=value),
-            ComponentType.CELL: Cell(potential_difference=value)
+            ComponentType.RESISTOR: Resistor(id=id, resistance=value),
+            ComponentType.CELL: Cell(id=id, potential_difference=value)
         }
 
         component_class = components[component_type]
@@ -49,6 +49,13 @@ class ComponentManager:
 
         for edge, component in edges_and_components.items():
             component.edge = edge
+
+    def CalculatePotentialDifferences(self):
+        for component in self.GetComponents():
+            if component.potential_difference is None:
+                component.potential_difference = component.current.value * component.resistance
+
+        return self
 
     def GetComponents(self):
         components = []

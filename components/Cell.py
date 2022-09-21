@@ -3,8 +3,8 @@ from components.ComponentType import ComponentType
 
 
 class Cell(PowerSource):
-    def __init__(self, potential_difference=None, internal_resistance=None):
-        super().__init__(potential_difference, internal_resistance)
+    def __init__(self, id=None, potential_difference=None, internal_resistance=None):
+        super().__init__(id, potential_difference, internal_resistance)
 
         self.component = ComponentType.CELL
         self.positive_terminal = None
@@ -15,4 +15,4 @@ class Cell(PowerSource):
         return self
 
     def __str__(self):
-        return f"({self.component} {self.potential_difference} Edge: {self.edge} Current ID: {self.current.id})"
+        return f"(Type: {self.component} ID: {self.id} R: {self.resistance} I: {self.current} V: {self.potential_difference} Symbol: {self.current.symbol} Edge: {self.edge})"

@@ -21,7 +21,7 @@ class NetList:
 
         return self
 
-    def GetComponents(self):
+    def GetComponentsAndIDs(self):
         return [item[0] for item in self.net_list]
 
     def GetLeftNodes(self):
@@ -36,16 +36,17 @@ class NetList:
     def GetComponentsDetails(self):
         components_details = []
 
-        components = self.GetComponents()
+        components_and_ids = self.GetComponentsAndIDs()
         left_nodes = self.GetLeftNodes()
         right_nodes = self.GetRightNodes()
         values = self.GetValues()
 
-        for index in range(len(components)):
+        for index in range(len(components_and_ids)):
             component_details = {
+                'id': int(components_and_ids[index][1:]),
                 'left_node': left_nodes[index],
                 'right_node': right_nodes[index],
-                'component_type': ComponentType(components[index][0]),
+                'component_type': ComponentType(components_and_ids[index][0]),
                 'value': values[index]
             }
 
