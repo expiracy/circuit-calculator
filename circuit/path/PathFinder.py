@@ -2,6 +2,7 @@ from circuit.ComponentManager import ComponentManager
 from circuit.path.PathResistor import PathResistor
 from circuit.path.PathCell import PathCell
 from circuit.path.Paths import Paths
+from graph.MultiGraph import MultiGraph
 
 
 class PathFinder:
@@ -314,30 +315,50 @@ class PathFinder:
 
         return loops_paths
 
-    def ConvertComponentToPathComponent(self, component, sign, edge):
-        if self.component_manager.IsCell(component):
-            positive_terminal = component.positive_terminal
+    def ConvertComponentToPathComponent(self, component, sign, path):
+        for node_index in range(len(path) - 1):
+            path_edge = (path[node_index], path[node_index + 1])
 
-            if edge[1] == positive_terminal:
-                path_component = PathCell(component, '+')
+            component_edge = component.edge[:2]
 
-            else:
-                path_component = PathCell(component, '-')
+            if component_edge == path_edge or tuple(reversed(component_edge)) == path_edge:
+                if self.component_manager.IsCell(component):
+                    positive_terminal = component.positive_terminal
 
-        else:
-            path_component = PathResistor(component, sign)
+                    if path_edge[1] == positive_terminal:
+                        path_component = PathCell(component, '+')
 
-        return path_component
+                    else:
+                        path_component = PathCell(component, '-')
+
+                else:
+                    path_component = PathResistor(component, sign)
+
+                return path_component
+
+    def CreateGraphOfPath(self, path):
+        graph = MultiGraph()
+
+        for component in path:
+            attributes = {'component': component}
+            graph.AddEdge(component.edge[0], component.edge[1], **attributes)
+
+        return graph
 
     def CreateLoopPaths(self, paths, loop_paths, sign, edge):
         path_component_paths = []
 
+        # the edge is too large
         for path_index in range(len(paths)):
             path_component_paths.append([])
             path = paths[path_index]
 
+            graph = self.CreateGraphOfPath(path)
+            graph_path = [[edge[0]] + path for path in graph.DFS(edge[0], edge[1])][0]
+
             for component in path:
-                path_component = self.ConvertComponentToPathComponent(component, sign, edge)
+
+                path_component = self.ConvertComponentToPathComponent(component, sign, graph_path)
 
                 path_component_paths[path_index].append(path_component)
 

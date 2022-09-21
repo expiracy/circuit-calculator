@@ -67,6 +67,8 @@ class CircuitManager:
 
         self.component_manager.SetComponentEdges()
 
+        test = self.circuit.GetEdgeAttributes('component')
+
         return self
 
     def GetComponentsOnLoop(self, loop):
@@ -81,8 +83,12 @@ class CircuitManager:
 
         return components_on_loop
 
+    def CreateCircuitFromComponents(self, components):
+        for component in components:
+            print(component)
+
 
 if __name__ == "__main__":
     circuit = MultiGraph()
-    file = "../testing/Circuit7.txt"
+    file = "../testing/Circuit11.txt"
     circuit_manager = CircuitManager(circuit).Main(file)
