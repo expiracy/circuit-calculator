@@ -1,5 +1,5 @@
 # https://www.circuit-diagram.org/news/2019/04/circuit-netlists
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
 
 
 class NetList:
@@ -45,7 +45,7 @@ class NetList:
             component_details = {
                 'left_node': left_nodes[index],
                 'right_node': right_nodes[index],
-                'component_type': COMPONENT(components[index][0]),
+                'component_type': ComponentType(components[index][0]),
                 'value': values[index]
             }
 

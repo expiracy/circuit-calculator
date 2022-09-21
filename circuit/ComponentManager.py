@@ -1,4 +1,4 @@
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
 from components.Resistor import Resistor
 from components.Cell import Cell
 
@@ -6,7 +6,7 @@ from components.Cell import Cell
 class ComponentManager:
     def __init__(self, circuit=None):
         self.circuit = circuit
-        self.grouping_types = [COMPONENT.SERIES_GROUP, COMPONENT.PARALLEL_BRANCH]
+        self.grouping_types = [ComponentType.SERIES_GROUP, ComponentType.PARALLEL_BRANCH]
 
     def GetComponentsForEdge(self, edge):
         components = []
@@ -31,8 +31,8 @@ class ComponentManager:
 
     def CreateComponent(self, component_type, value):
         components = {
-            COMPONENT.RESISTOR: Resistor(resistance=value),
-            COMPONENT.CELL: Cell(potential_difference=value)
+            ComponentType.RESISTOR: Resistor(resistance=value),
+            ComponentType.CELL: Cell(potential_difference=value)
         }
 
         component_class = components[component_type]
@@ -68,28 +68,28 @@ class ComponentManager:
             return False
 
     def IsParallelBranch(self, component):
-        if component.component is COMPONENT.PARALLEL_BRANCH:
+        if component.component is ComponentType.PARALLEL_BRANCH:
             return True
 
         else:
             return False
 
     def IsSeriesGroup(self, component):
-        if component.component is COMPONENT.SERIES_GROUP:
+        if component.component is ComponentType.SERIES_GROUP:
             return True
 
         else:
             return False
 
     def IsCell(self, component):
-        if component.component is COMPONENT.CELL:
+        if component.component is ComponentType.CELL:
             return True
 
         else:
             return False
 
     def IsResistor(self, component):
-        if component.component is COMPONENT.RESISTOR:
+        if component.component is ComponentType.RESISTOR:
             return True
 
         else:

@@ -1,15 +1,14 @@
 from circuit.Current import Current
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
+from components.Grouping import Grouping
 
 
-class SeriesGroup:
+class SeriesGroup(Grouping):
     def __init__(self, nodes=None, edge=None, components=None):
-        self.component = COMPONENT.SERIES_GROUP
+        super().__init__(edge, components)
+
+        self.component = ComponentType.SERIES_GROUP
         self.nodes = nodes
-        self.edge = edge
-        self.components = components
-        self.current = Current()
-        self.paths = []
 
     def FindComponentWithEdge(self, edge):
         for component in self.components:
@@ -17,16 +16,6 @@ class SeriesGroup:
 
             if component_edge == edge or tuple(reversed(component_edge)) == edge:
                 return component
-
-    def GetGroupings(self):
-        groupings = []
-
-        for component in self.components:
-            component_type = component.component
-            if component_type is COMPONENT.PARALLEL_BRANCH or component_type is COMPONENT.SERIES_GROUP:
-                groupings.append(component)
-
-        return groupings
 
     def Reverse(self):
         self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]

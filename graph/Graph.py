@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from components.Resistor import Resistor
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
 
 
 class Graph:

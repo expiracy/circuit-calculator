@@ -1,12 +1,12 @@
 from components.PowerSource import PowerSource
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
 
 
 class Cell(PowerSource):
-    def __init__(self, potential_difference=0, internal_resistance=0, current=0):
-        super().__init__(potential_difference, internal_resistance, current)
+    def __init__(self, potential_difference=None, internal_resistance=None):
+        super().__init__(potential_difference, internal_resistance)
 
-        self.component = COMPONENT.CELL
+        self.component = ComponentType.CELL
         self.positive_terminal = None
 
     def Reverse(self):

@@ -1,24 +1,13 @@
 from circuit.Current import Current
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
+from components.Grouping import Grouping
 
 
-class ParallelBranch:
+class ParallelBranch(Grouping):
     def __init__(self, edge=None, components=None, flow=None):
-        self.component = COMPONENT.PARALLEL_BRANCH
-        self.edge = edge
-        self.components = components
-        self.current = Current()
-        self.paths = []
+        super().__init__(edge, components)
 
-    def GetGroupings(self):
-        groupings = []
-
-        for component in self.components:
-            component_type = component.component
-            if component_type is COMPONENT.PARALLEL_BRANCH or component_type is COMPONENT.SERIES_GROUP:
-                groupings.append(component)
-
-        return groupings
+        self.component = ComponentType.PARALLEL_BRANCH
 
     def Reverse(self):
         self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]

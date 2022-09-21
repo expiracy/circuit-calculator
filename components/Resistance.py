@@ -1,12 +1,11 @@
 from circuit.Current import Current
+from components.ComponentType import ComponentType
+from components.Component import Component
 
 
-class Resistance:
-    def __init__(self, resistance=0, potential_difference=0, edge=None):
-        self.resistance = resistance
-        self.potential_difference = potential_difference
-        self.current = Current()
-        self.edge = edge
+class Resistance(Component):
+    def __init__(self, potential_difference=None, resistance=None, edge=None):
+        super().__init__(potential_difference, resistance, edge)
 
     def Reverse(self):
         #self.edge = tuple(reversed(self.edge[:2])) + self.edge[2:]

@@ -1,7 +1,7 @@
 import json
 from os.path import join, dirname, realpath
 from graph.Graph import Graph
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
 from circuit.CircuitManager import CircuitManager
 import os
 

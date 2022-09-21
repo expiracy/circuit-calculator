@@ -1,12 +1,12 @@
 from components.Resistance import Resistance
-from components.COMPONENT import COMPONENT
+from components.ComponentType import ComponentType
 
 
 class Resistor(Resistance):
-    def __init__(self, resistance=0, potential_difference=0, current=0):
-        super().__init__(resistance, potential_difference, current)
+    def __init__(self, resistance=None, potential_difference=None):
+        super().__init__(potential_difference, resistance)
 
-        self.component = COMPONENT.RESISTOR
+        self.component = ComponentType.RESISTOR
 
     def __str__(self):
         return f"({self.component} {self.resistance} Edge: {self.edge} Current ID: {self.current.id} {str(self.current.symbol)})"
