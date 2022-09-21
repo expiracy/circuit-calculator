@@ -4,7 +4,7 @@ from components.Grouping import Grouping
 
 
 class ParallelBranch(Grouping):
-    def __init__(self, edge=None, components=None, flow=None):
+    def __init__(self, edge=None, components=None):
         super().__init__(edge, components)
 
         self.component = ComponentType.PARALLEL_BRANCH

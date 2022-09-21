@@ -21,6 +21,44 @@ class TopologyManager:
 
         return self
 
+    def FinalSimplification(self):
+        edge = None
+
+        for component in self.components:
+            if self.component_manager.IsParallelBranch(component):
+                edge = component.edge[:2]
+
+                break
+
+        if edge:
+            new_components = []
+            added_components = []
+
+            paths_between = self.path_finder.FindPathsBetween(edge[0], edge[1])
+            paths = [[edge[0]] + path + [edge[1]] for path in paths_between]
+
+            valid_paths = []
+            series_group_nodes = []
+
+            for path_index in range(len(paths)):
+                path = paths[path_index]
+                valid = True
+
+                for node in path:
+                    if path.count(node) > 1:
+                        valid = False
+
+                        break
+
+                if valid is True and tuple(path) != edge:
+                    valid_paths.append(path)
+                    series_group_nodes.append(paths_between[path_index])
+
+            added_components = self.CreateSeriesGroups(series_group_nodes)
+            self.AddRemainingComponents(added_components)
+
+        return self
+
     def SimplifyTopology(self):
         self.junction_manager.InitialiseJunctions()
 
@@ -34,10 +72,11 @@ class TopologyManager:
             added_components = self.CreateSeriesGroups(series_groups_nodes)
             self.AddRemainingComponents(added_components)
 
-            components_for_edges = self.GetComponentsForEdges()
-            self.GroupParallelBranches(components_for_edges)
+        else:
+            self.FinalSimplification()
 
-            self.UpdateCircuit()
+        self.GroupParallelBranches()
+        self.UpdateCircuit()
 
         new_circuit_nodes = list(self.circuit.GetNodes())
 
@@ -47,7 +86,7 @@ class TopologyManager:
             return self
 
         else:
-            self.SimplifyTopology()
+            return self.SimplifyTopology()
 
     def FindPossibleSeriesGroupPath(self, component):
         possible_path = []
@@ -196,7 +235,9 @@ class TopologyManager:
 
         return added_components
 
-    def GroupParallelBranches(self, components_for_edges):
+    def GroupParallelBranches(self):
+        components_for_edges = self.GetComponentsForEdges()
+
         new_components = []
 
         for edge, components in components_for_edges.items():

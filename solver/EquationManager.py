@@ -1,4 +1,5 @@
 from circuit.path.PathFinder import PathFinder
+from circuit.CurrentManager import CurrentManager
 import sympy as sym
 
 
@@ -9,7 +10,9 @@ class EquationManager:
         self.component_manager = component_manager
         self.topology_manager = topology_manager
         self.junction_manager = junction_manager
+
         self.path_finder = PathFinder(circuit)
+        self.current_manager = CurrentManager(circuit)
 
         self.equations = []
 
@@ -36,6 +39,8 @@ class EquationManager:
         for equation in self.equations:
             print(equation)
 
+    def FindK1Equations(self):
+        pass
 
 
 

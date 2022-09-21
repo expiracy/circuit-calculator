@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ComponentType(Enum):
     CELL = "V"
     RESISTOR = "R"
