@@ -1,11 +1,11 @@
 import sympy as sym
 
 class Current:
-    def __init__(self, id=-1, symbol=None, value=None, flow=None):
+    def __init__(self, id=-1, symbol=None, value=None):
         self.id = id
         self.symbol = symbol
         self.value = value
-        self.flow = flow
+        self.components = []
 
     def IsPositive(self):
         sign = str(self.symbol)[0]

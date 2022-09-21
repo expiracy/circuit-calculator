@@ -28,20 +28,25 @@ class CurrentManager:
 
         for component in components:
             if outer_parallel_branch:
-                current = self.GenerateNewCurrent()
+                new_current = self.GenerateNewCurrent()
+                component.current = new_current
 
-            component.current = current
+                current.components.append(new_current)
+
+            else:
+                component.current = current
 
             inner_series_group = self.component_manager.IsSeriesGroup(component)
             inner_parallel_branch = self.component_manager.IsParallelBranch(component)
 
             if inner_parallel_branch:
-                self.AssignCurrents(component.components, None, True)
+                self.AssignCurrents(component.components, component.current, True)
 
             elif inner_series_group:
-                self.AssignCurrents(component.components, current, False)
+                self.AssignCurrents(component.components, component.current, False)
 
         return self
+
 
 
 

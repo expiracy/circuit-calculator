@@ -5,6 +5,7 @@ from circuit.ComponentManager import ComponentManager
 from circuit.topology.JunctionsManager import JunctionsManager
 from circuit.topology.TopologyManager import TopologyManager
 from solver.EquationManager import EquationManager
+from solver.Solver import Solver
 
 
 class CircuitManager:
@@ -40,6 +41,8 @@ class CircuitManager:
 
         equations = equation_manager.FindEquations()
 
+        Solver(equations).Solve()
+
         return self
 
     def AddComponentToCircuit(self, left_node, right_node, component_type, value):
@@ -66,8 +69,6 @@ class CircuitManager:
             self.AddComponentToCircuit(**component_details)
 
         self.component_manager.SetComponentEdges()
-
-        test = self.circuit.GetEdgeAttributes('component')
 
         return self
 

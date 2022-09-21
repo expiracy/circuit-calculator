@@ -31,9 +31,6 @@ class TopologyManager:
                 break
 
         if edge:
-            new_components = []
-            added_components = []
-
             paths_between = self.path_finder.FindPathsBetween(edge[0], edge[1])
             paths = [[edge[0]] + path + [edge[1]] for path in paths_between]
 
