@@ -12,11 +12,18 @@
     <section class="title">
         <h1>Circuit Calculator</h1>
     </section>
+
     <section>
-        <input id="test"
-               onclick="addResistor()"
-               type="button"
-               value="click"/>
+        <input type="button"
+            id="select_button"
+            value="Input Net File"
+            onclick="clickButton('select_input')"/>
+
+        <input type="file"
+            id="select_input"
+            style="display:NONE;"
+            accept=".txt"
+            onchange="solve()"/>
     </section>
 
 

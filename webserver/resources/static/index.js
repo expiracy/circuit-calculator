@@ -1,25 +1,28 @@
-function addResistor() {
+function clickButton(element_id) {
+    document.getElementById(element_id).click();
+}
+
+function solve() {
+    let file_upload = document.getElementById("select_input").files[0]
+
+    console.log(file_upload)
+
     let form = new FormData();
     let xhr = new XMLHttpRequest();
 
-    try {
-        // posting the values to flask
-        form.append('resistor', JSON.stringify('resistor'))
-        xhr.open('post', '/api/add_resistor', true);
-        xhr.send(form);
 
+    // posting the values to flask
+    form.append('uploaded_file', file_upload, 'net_file.txt')
+    xhr.open('post', '/api/solve', true);
+    xhr.send(form);
 
-        // responses to the ajax post
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
+    // responses to the ajax post
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
 
-                // change back to global if it doesn't work
-                let response = JSON.parse(xhr.responseText)
-                print(response)
-            }
+            // change back to global if it doesn't work
+            let result = JSON.parse(xhr.responseText)
+            console.log(result)
         }
-    } catch {
-        let error = 'Error.'
-        console.log(error)
     }
 }

@@ -6,12 +6,16 @@ from circuit.topology.JunctionsManager import JunctionsManager
 from circuit.topology.TopologyManager import TopologyManager
 from solver.EquationManager import EquationManager
 from solver.Solver import Solver
+import json
 
 
 class CircuitManager:
     def __init__(self, circuit=None):
-        self.circuit = circuit
-        self.loops = []
+        if circuit is None:
+            self.circuit = MultiGraph()
+
+        else:
+            self.circuit = circuit
 
         self.component_manager = ComponentManager(self.circuit)
 
@@ -26,13 +30,40 @@ class CircuitManager:
                                               self.junction_manager,
                                               self.component_manager)
 
-    def Main(self, file):
-        self.CreateCircuitFromNetListFile(file)
+    def Solve(self):
+        self.ConfigureCircuit()
 
+        solutions = self.FindSolutions()
+
+        self.SetComponentValues(solutions)
+
+        json_result = self.GetJSONResults()
+
+        return json_result
+
+    def GetJSONResults(self):
+        result = {}
+
+        for component in self.component_manager.GetComponents():
+            values = {
+                    'potential_difference': str(component.potential_difference),
+                    'resistance': str(component.resistance),
+                    'current': str(component.current.value)
+                      }
+
+            component_name_and_id = f"{component.component} {component.id}"
+            result[component_name_and_id] = json.dumps(values)
+
+        return json.dumps(result)
+
+    def ConfigureCircuit(self):
         self.topology_manager.SimplifyTopology()
 
         self.current_manager.AssignCurrents(self.topology_manager.components)
 
+        return self
+
+    def FindSolutions(self):
         equation_manager = EquationManager(self.topology_manager.circuit,
                                            ComponentManager(self.topology_manager.circuit),
                                            self.topology_manager,
@@ -41,12 +72,11 @@ class CircuitManager:
         equations = equation_manager.FindEquations()
         solutions = Solver(equations).Solve()
 
+        return solutions
+
+    def SetComponentValues(self, solutions):
         self.current_manager.SetCurrentValues(solutions)
         self.component_manager.CalculatePotentialDifferences()
-
-        for component in self.component_manager.GetComponents():
-            print(str(component))
-            print()
 
         return self
 
@@ -69,6 +99,7 @@ class CircuitManager:
         self.circuit.AddEdge(int(left_node), int(right_node), **attribute)
 
     def CreateCircuitFromNetListFile(self, net_list_file):
+
         net_list = NetList().LoadFile(net_list_file)
 
         components_details = net_list.GetComponentsDetails()
@@ -80,24 +111,14 @@ class CircuitManager:
 
         return self
 
-    def GetComponentsOnLoop(self, loop):
-        components_on_loop = []
-
-        for node_index in range(len(loop) - 1):
-            edge = (loop[node_index], loop[node_index + 1])
-
-            components_for_edge = self.component_manager.GetComponentsForEdge(edge)
-
-            components_on_loop.append(components_for_edge)
-
-        return components_on_loop
-
     def CreateCircuitFromComponents(self, components):
         for component in components:
             print(component)
 
 
 if __name__ == "__main__":
-    circuit = MultiGraph()
-    file = "../testing/Circuit6.txt"
-    circuit_manager = CircuitManager(circuit).Main(file)
+    file = "../data/testing/Circuit10.txt"
+
+    circuit_manager = CircuitManager()
+    circuit_manager.CreateCircuitFromNetListFile(file)
+    circuit_manager.Solve()
